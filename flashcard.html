@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flashcards - เรียนรู้คำศัพท์</title>
+  <title>Flashcards - เรียนรู้คำศัพท์ 300 คำ</title>
   <style>
     body {
       font-family: 'Sukhumvit Set', 'Kanit', sans-serif;
@@ -14,37 +14,64 @@
       justify-content: center;
       min-height: 100vh;
       margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     .container {
       text-align: center;
-      width: 90%;
+      width: 100%;
       max-width: 420px;
+      background: white;
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .btn-back-home {
+      text-decoration: none;
+      color: #4f46e5;
+      font-weight: bold;
+      font-size: 0.95rem;
     }
 
     .search-box {
       margin-bottom: 15px;
     }
 
-    .search-input {
+    .search-box input {
       width: 100%;
-      padding: 10px 15px;
-      font-size: 1rem;
+      padding: 10px 14px;
       border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      box-sizing: border-box;
+      border-radius: 10px;
+      font-size: 0.95rem;
       outline: none;
+      box-sizing: border-box;
     }
 
-    .search-input:focus {
+    .search-box input:focus {
       border-color: #4f46e5;
+    }
+
+    .card-counter {
+      font-size: 0.9rem;
+      color: #64748b;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .card-container {
       perspective: 1000px;
       width: 100%;
-      height: 280px;
-      margin: 15px 0;
+      height: 220px;
+      margin-bottom: 15px;
       cursor: pointer;
     }
 
@@ -54,7 +81,6 @@
       position: relative;
       transform-style: preserve-3d;
       transition: transform 0.6s;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       border-radius: 16px;
     }
 
@@ -72,202 +98,438 @@
       align-items: center;
       justify-content: center;
       border-radius: 16px;
-      background: white;
       padding: 20px;
       box-sizing: border-box;
+      border: 1px solid #e2e8f0;
     }
 
+    .card-front { background: #ffffff; }
     .card-back {
       transform: rotateY(180deg);
       background-color: #eef2ff;
+      border-color: #c7d2fe;
     }
 
-    .vocab { font-size: 2.2rem; font-weight: bold; color: #2d3748; }
-    .meaning { font-size: 1.5rem; color: #4338ca; font-weight: bold; }
-    .hint { font-size: 0.85rem; color: #a0aec0; margin-top: 10px; }
-
-    /* ส่วนประโยคตัวอย่างด้านหลังการ์ด */
-    .example-box {
-      margin-top: 15px;
-      padding: 10px 12px;
-      background: #ffffff;
-      border-radius: 8px;
-      border-left: 4px solid #4f46e5;
-      text-align: left;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .example-en {
-      font-size: 0.95rem;
-      color: #1e293b;
-      font-style: italic;
-    }
-
-    .example-th {
-      font-size: 0.85rem;
-      color: #64748b;
-      margin-top: 2px;
-    }
+    .vocab { font-size: 2rem; font-weight: bold; color: #1e293b; }
+    .meaning { font-size: 1.3rem; color: #334155; }
+    .hint { font-size: 0.8rem; color: #94a3b8; margin-top: 8px; }
 
     .btn-group {
       display: flex;
       gap: 10px;
       justify-content: center;
-      margin-top: 15px;
     }
 
     button {
-      padding: 10px 20px;
+      padding: 10px 16px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       background-color: #4f46e5;
       color: white;
-      font-size: 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
       cursor: pointer;
     }
 
     button:hover { background-color: #4338ca; }
+    button:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+
     .btn-sound { background-color: #10b981; }
     .btn-sound:hover { background-color: #059669; }
+    .btn-nav { background-color: #f1f5f9; color: #334155; }
+    .btn-nav:hover { background-color: #e2e8f0; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h2>⚡ Flashcards 300 คำ</h2>
+    <div class="header-nav">
+      <a href="index.html" class="btn-back-home">🏠 หน้าหลัก</a>
+      <h2 style="margin:0; font-size:1.3rem;">⚡ Flashcards</h2>
+      <span></span>
+    </div>
 
     <div class="search-box">
-      <input 
-        type="text" 
-        id="searchInput" 
-        class="search-input" 
-        placeholder="🔍 ค้นหาคำศัพท์..." 
-        oninput="searchWord()"
-      >
+      <input type="text" id="searchInput" placeholder="🔍 ค้นหาคำศัพท์ หรือ คำแปล..." oninput="filterCards()">
     </div>
+
+    <div class="card-counter" id="cardCounter">คำที่ 1 / 300</div>
 
     <div class="card-container" onclick="flipCard()">
       <div class="card" id="flashcard">
-        <!-- หน้าการ์ด (คำศัพท์) -->
         <div class="card-face card-front">
-          <div class="vocab" id="vocabText">Achieve</div>
-          <div class="hint">(แตะเพื่อดูคำแปลและตัวอย่างประโยค)</div>
+          <div class="vocab" id="vocabText">Ability</div>
+          <div class="hint">(แตะแผ่นการ์ดเพื่อดูคำแปล)</div>
         </div>
-        <!-- หลังการ์ด (คำแปล + ตัวอย่างประโยค) -->
         <div class="card-face card-back">
-          <div class="meaning" id="meaningText">บรรลุผล, สำเร็จ</div>
-          <div class="example-box">
-            <div class="example-en" id="exampleEn">"She worked hard to achieve her goals."</div>
-            <div class="example-th" id="exampleTh">แปล: เธอทำงานหนักเพื่อบรรลุเป้าหมายของเธอ</div>
-          </div>
+          <div class="meaning" id="meaningText">ความสามารถ</div>
         </div>
       </div>
     </div>
 
     <div class="btn-group">
-      <button class="btn-sound" onclick="speakVocab(event)">🔊 ฟังเสียง</button>
-      <button onclick="nextCard()">คำถัดไป ➔</button>
+      <button class="btn-nav" id="prevBtn" onclick="prevCard()">⬅️ ย้อนกลับ</button>
+      <button class="btn-sound" onclick="speakVocab(event)">🔊 อ่านเสียง</button>
+      <button class="btn-nav" id="nextBtn" onclick="nextCard()">ถัดไป ➔</button>
     </div>
   </div>
 
   <script>
-    // ชุดข้อมูลคำศัพท์ + ประโยคตัวอย่าง
-    const flashcards = [
-      {
-        vocab: "Achieve",
-        meaning: "บรรลุผล, สำเร็จ",
-        exampleEn: "She worked hard to achieve her goals.",
-        exampleTh: "เธอทำงานหนักเพื่อบรรลุเป้าหมายของเธอ"
-      },
-      {
-        vocab: "Brilliant",
-        meaning: "ฉลาดปราดเปรื่อง",
-        exampleEn: "He came up with a brilliant idea.",
-        exampleTh: "เขาคิดไอเดียที่ฉลาดปราดเปรื่องออกมาได้"
-      },
-      {
-        vocab: "Challenge",
-        meaning: "การท้าทาย",
-        exampleEn: "Learning a new language is a great challenge.",
-        exampleTh: "การเรียนภาษาใหม่คือการท้าทายที่ยิ่งใหญ่"
-      },
-      {
-        vocab: "Dangerous",
-        meaning: "อันตราย",
-        exampleEn: "It is dangerous to drive too fast.",
-        exampleTh: "มันอันตรายที่จะขับรถเร็วเกินไป"
-      },
-      {
-        vocab: "Eager",
-        meaning: "กระตือรือร้น",
-        exampleEn: "The students were eager to learn.",
-        exampleTh: "เหล่านักเรียนกระตือรือร้นที่จะเรียนรู้"
-      }
+    // ชุดข้อมูลคำศัพท์ปรับให้เหลือ 300 คำแบบไม่ซ้ำ
+    const rawFlashcards = [
+      { vocab: "Ability", meaning: "ความสามารถ" }, { vocab: "Abroad", meaning: "ต่างประเทศ" },
+      { vocab: "Absence", meaning: "การไม่อยู่, การลาหยุด" }, { vocab: "Absolute", meaning: "สมบูรณ์, แน่นอน" },
+      { vocab: "Absorb", meaning: "ดูดซับ" }, { vocab: "Academic", meaning: "เกี่ยวกับการศึกษา" },
+      { vocab: "Accept", meaning: "ยอมรับ" }, { vocab: "Access", meaning: "ทางเข้า, สิทธิ์เข้าถึง" },
+      { vocab: "Accident", meaning: "อุบัติเหตุ" }, { vocab: "Accompany", meaning: "ร่วมเดินทาง" },
+      { vocab: "Accomplish", meaning: "ทำสำเร็จ" }, { vocab: "Account", meaning: "บัญชี, การอธิบาย" },
+      { vocab: "Accurate", meaning: "ถูกต้องแม่นยำ" }, { vocab: "Achieve", meaning: "บรรลุเป้าหมาย" },
+      { vocab: "Acknowledge", meaning: "รับรู้, ยอมรับ" }, { vocab: "Acquire", meaning: "ได้รับมา" },
+      { vocab: "Active", meaning: "คล่องแคล่ว" }, { vocab: "Adapt", meaning: "ปรับตัว" },
+      { vocab: "Addiction", meaning: "การเสพติด" }, { vocab: "Address", meaning: "ที่อยู่, รับมือแก้ไข" },
+      { vocab: "Adequate", meaning: "เพียงพอ" }, { vocab: "Adjust", meaning: "ปรับเปลี่ยน" },
+      { vocab: "Admire", meaning: "ชื่นชม" }, { vocab: "Admit", meaning: "ยอมรับความจริง" },
+      { vocab: "Adopt", meaning: "รับเลี้ยง, นำมาใช้" }, { vocab: "Advance", meaning: "ก้าวหน้า" },
+      { vocab: "Advantage", meaning: "ข้อดี, ประโยชน์" }, { vocab: "Adventure", meaning: "การผจญภัย" },
+      { vocab: "Advice", meaning: "คำแนะนำ" }, { vocab: "Advocate", meaning: "ผู้สนับสนุน, สนับสนุน" },
+      { vocab: "Affect", meaning: "ส่งผลกระทบ" }, { vocab: "Afford", meaning: "จ่ายไหว, มีกำลังซื้อ" },
+      { vocab: "Aggressive", meaning: "ก้าวร้าว" }, { vocab: "Agree", meaning: "เห็นด้วย" },
+      { vocab: "Alert", meaning: "ตื่นตัว, เตือนภัย" }, { vocab: "Allocate", meaning: "จัดสรร" },
+      { vocab: "Allow", meaning: "อนุญาต" }, { vocab: "Alternative", meaning: "ทางเลือก" },
+      { vocab: "Ambitious", meaning: "ทะเยอทะยาน" }, { vocab: "Analyze", meaning: "วิเคราะห์" },
+      { vocab: "Ancient", meaning: "โบราณ" }, { vocab: "Annual", meaning: "ประจำปี" },
+      { vocab: "Anxiety", meaning: "ความวิตกกังวล" }, { vocab: "Apologize", meaning: "ขอโทษ" },
+      { vocab: "Apparent", meaning: "ชัดเจน" }, { vocab: "Appeal", meaning: "ดึงดูดใจ, อุทธรณ์" },
+      { vocab: "Appear", meaning: "ปรากฏตัว" }, { vocab: "Appreciate", meaning: "ซาบซึ้ง, เห็นคุณค่า" },
+      { vocab: "Approach", meaning: "เข้าใกล้, วิธีการ" }, { vocab: "Appropriate", meaning: "เหมาะสม" },
+      { vocab: "Approve", meaning: "อนุมัติ" }, { vocab: "Arrive", meaning: "มาถึง" },
+      { vocab: "Article", meaning: "บทความ" }, { vocab: "Artificial", meaning: "เทียม, สังเคราะห์" },
+      { vocab: "Aspect", meaning: "แง่มุม" }, { vocab: "Aspire", meaning: "ทะเยอทะยาน" },
+      { vocab: "Assemble", meaning: "ประกอบ, รวมตัว" }, { vocab: "Assert", meaning: "ยืนยัน" },
+      { vocab: "Assess", meaning: "ประเมินผล" }, { vocab: "Asset", meaning: "ทรัพย์สิน" },
+      { vocab: "Assign", meaning: "มอบหมาย" }, { vocab: "Assist", meaning: "ช่วยเหลือ" },
+      { vocab: "Associate", meaning: "เชื่อมโยง, พนักงาน" }, { vocab: "Assume", meaning: "สันนิษฐาน" },
+      { vocab: "Assure", meaning: "ให้ความมั่นใจ" }, { vocab: "Astonish", meaning: "ทำให้ประหลาดใจ" },
+      { vocab: "Attach", meaning: "แนบ, ติด" }, { vocab: "Attain", meaning: "บรรลุ, ได้รับ" },
+      { vocab: "Attempt", meaning: "พยายาม" }, { vocab: "Attract", meaning: "ดึงดูด" },
+      { vocab: "Audience", meaning: "ผู้ชม, ผู้ฟัง" }, { vocab: "Authentic", meaning: "แท้จริง, ดั้งเดิม" },
+      { vocab: "Authority", meaning: "ผู้มีอำนาจ" }, { vocab: "Automatic", meaning: "อัตโนมัติ" },
+      { vocab: "Available", meaning: "มีอยู่, ว่างพร้อมใช้" }, { vocab: "Average", meaning: "ค่าเฉลี่ย" },
+      { vocab: "Avoid", meaning: "หลีกเลี่ยง" }, { vocab: "Aware", meaning: "รับรู้, ตระหนัก" },
+      { vocab: "Awesome", meaning: "ยอดเยี่ยม" }, { vocab: "Background", meaning: "ภูมิหลัง, ฉากหลัง" },
+      { vocab: "Balance", meaning: "สมดุล" }, { vocab: "Barrier", meaning: "อุปสรรค, สิ่งกีดขวาง" },
+      { vocab: "Behavior", meaning: "พฤติกรรม" }, { vocab: "Belief", meaning: "ความเชื่อ" },
+      { vocab: "Benefit", meaning: "ผลประโยชน์" }, { vocab: "Betray", meaning: "ทรยศ" },
+      { vocab: "Bonus", meaning: "เงินพิเศษ" }, { vocab: "Boost", meaning: "ส่งเสริม, เพิ่ม" },
+      { vocab: "Brave", meaning: "กล้าหาญ" }, { vocab: "Brilliant", meaning: "ฉลาดปราดเปรื่อง" },
+      { vocab: "Broad", meaning: "กว้างขวาง" }, { vocab: "Budget", meaning: "งบประมาณ" },
+      { vocab: "Calculate", meaning: "คำนวณ" }, { vocab: "Calm", meaning: "สงบ" },
+      { vocab: "Cancel", meaning: "ยกเลิก" }, { vocab: "Candidate", meaning: "ผู้สมัคร" },
+      { vocab: "Capacity", meaning: "ความจุ, ความสามารถ" }, { vocab: "Captivate", meaning: "ตรึงใจ, ดึงดูด" },
+      { vocab: "Career", meaning: "อาชีพ" }, { vocab: "Category", meaning: "ประเภท" },
+      { vocab: "Caution", meaning: "ความระมัดระวัง" }, { vocab: "Celebrate", meaning: "เฉลิมฉลอง" },
+      { vocab: "Certain", meaning: "แน่นอน" }, { vocab: "Challenge", meaning: "การท้าทาย" },
+      { vocab: "Champion", meaning: "ผู้ชนะเลิศ" }, { vocab: "Character", meaning: "บุคลิกลักษณะ" },
+      { vocab: "Clarify", meaning: "อธิบายให้ชัดเจน" }, { vocab: "Collaborate", meaning: "ร่วมมือกัน" },
+      { vocab: "Collect", meaning: "สะสม, รวบรวม" }, { vocab: "Combine", meaning: "รวมกัน" },
+      { vocab: "Comfort", meaning: "ความสบาย" }, { vocab: "Commitment", meaning: "ความมุ่งมั่น" },
+      { vocab: "Common", meaning: "ธรรมดา, ทั่วไป" }, { vocab: "Communicate", meaning: "สื่อสาร" },
+      { vocab: "Community", meaning: "ชุมชน" }, { vocab: "Company", meaning: "บริษัท" },
+      { vocab: "Compare", meaning: "เปรียบเทียบ" }, { vocab: "Compassion", meaning: "ความเห็นใจ" },
+      { vocab: "Compete", meaning: "แข่งขัน" }, { vocab: "Complain", meaning: "บ่น, ร้องเรียน" },
+      { vocab: "Complete", meaning: "สมบูรณ์, ทำเสร็จ" }, { vocab: "Complex", meaning: "ซับซ้อน" },
+      { vocab: "Complicate", meaning: "ทำให้ซับซ้อน" }, { vocab: "Comply", meaning: "ปฏิบัติตาม" },
+      { vocab: "Component", meaning: "ชิ้นส่วน, ส่วนประกอบ" }, { vocab: "Concentrate", meaning: "มีสมาธิ" },
+      { vocab: "Concept", meaning: "แนวคิด" }, { vocab: "Concern", meaning: "ความกังวล" },
+      { vocab: "Conclude", meaning: "สรุป" }, { vocab: "Condition", meaning: "เงื่อนไข, สภาพ" },
+      { vocab: "Conduct", meaning: "จัดการ, ความประพฤติ" }, { vocab: "Confidence", meaning: "ความมั่นใจ" },
+      { vocab: "Confirm", meaning: "ยืนยัน" }, { vocab: "Conflict", meaning: "ความขัดแย้ง" },
+      { vocab: "Confusion", meaning: "ความสับสน" }, { vocab: "Connect", meaning: "เชื่อมต่อ" },
+      { vocab: "Conscious", meaning: "มีสติ, รู้ตัว" }, { vocab: "Consensus", meaning: "ความเห็นพ้อง" },
+      { vocab: "Consequence", meaning: "ผลที่ตามมา" }, { vocab: "Consider", meaning: "พิจารณา" },
+      { vocab: "Consistently", meaning: "อย่างสม่ำเสมอ" }, { vocab: "Constant", meaning: "คงที่, ต่อเนื่อง" },
+      { vocab: "Construct", meaning: "สร้าง" }, { vocab: "Consult", meaning: "ปรึกษา" },
+      { vocab: "Consume", meaning: "บริโภค" }, { vocab: "Contact", meaning: "ติดต่อ" },
+      { vocab: "Contain", meaning: "บรรจุไว้" }, { vocab: "Content", meaning: "เนื้อหา, พึงพอใจ" },
+      { vocab: "Context", meaning: "บริบท" }, { vocab: "Continue", meaning: "ทําต่อไป" },
+      { vocab: "Contract", meaning: "สัญญา" }, { vocab: "Contribute", meaning: "สนับสนุน" },
+      { vocab: "Control", meaning: "ควบคุม" }, { vocab: "Convenient", meaning: "สะดวกสบาย" },
+      { vocab: "Convert", meaning: "แปลง, เปลี่ยน" }, { vocab: "Convey", meaning: "สื่อสาร" },
+      { vocab: "Convince", meaning: "โน้มน้าวใจ" }, { vocab: "Cooperate", meaning: "ร่วมมือ" },
+      { vocab: "Cope", meaning: "รับมือ" }, { vocab: "Correct", meaning: "ถูกต้อง" },
+      { vocab: "Cost", meaning: "ต้นทุน" }, { vocab: "Council", meaning: "สภา" },
+      { vocab: "Courage", meaning: "ความกล้าหาญ" }, { vocab: "Create", meaning: "สร้างสรรค์" },
+      { vocab: "Creative", meaning: "มีความคิดสร้างสรรค์" }, { vocab: "Credible", meaning: "น่าเชื่อถือ" },
+      { vocab: "Crisis", meaning: "วิกฤตการณ์" }, { vocab: "Critical", meaning: "วิกฤต, สำคัญยิ่ง" },
+      { vocab: "Crucial", meaning: "สำคัญมาก" }, { vocab: "Cultivate", meaning: "บ่มเพาะ" },
+      { vocab: "Culture", meaning: "วัฒนธรรม" }, { vocab: "Curious", meaning: "อยากรู้อยากเห็น" },
+      { vocab: "Current", meaning: "ปัจจุบัน" }, { vocab: "Customer", meaning: "ลูกค้า" },
+      { vocab: "Damage", meaning: "ความเสียหาย" }, { vocab: "Danger", meaning: "อันตราย" },
+      { vocab: "Data", meaning: "ข้อมูล" }, { vocab: "Decide", meaning: "ตัดสินใจ" },
+      { vocab: "Declare", meaning: "ประกาศ" }, { vocab: "Decline", meaning: "ลดลง, ปฏิเสธ" },
+      { vocab: "Decorate", meaning: "ตกแต่ง" }, { vocab: "Decrease", meaning: "ลดลง" },
+      { vocab: "Dedicated", meaning: "ทุ่มเท" }, { vocab: "Defend", meaning: "ป้องกัน" },
+      { vocab: "Define", meaning: "กำหนด, นิยาม" }, { vocab: "Definite", meaning: "แน่นอน" },
+      { vocab: "Delay", meaning: "ล่าช้า" }, { vocab: "Delicate", meaning: "ละเอียดอ่อน" },
+      { vocab: "Deliver", meaning: "ส่งมอบ" }, { vocab: "Demand", meaning: "ความต้องการ" },
+      { vocab: "Demonstrate", meaning: "สาธิต" }, { vocab: "Deny", meaning: "ปฏิเสธ" },
+      { vocab: "Depend", meaning: "ขึ้นอยู่กับ" }, { vocab: "Deposit", meaning: "ฝากเงิน" },
+      { vocab: "Describe", meaning: "อธิบายลักษณะ" }, { vocab: "Deserve", meaning: "สมควรได้รับ" },
+      { vocab: "Design", meaning: "ออกแบบ" }, { vocab: "Desire", meaning: "ความปรารถนา" },
+      { vocab: "Desperate", meaning: "สิ้นหวัง" }, { vocab: "Destroy", meaning: "ทำลาย" },
+      { vocab: "Detail", meaning: "รายละเอียด" }, { vocab: "Detect", meaning: "ตรวจพบ" },
+      { vocab: "Determine", meaning: "ตัดสินใจแน่วแน่" }, { vocab: "Develop", meaning: "พัฒนา" },
+      { vocab: "Device", meaning: "อุปกรณ์" }, { vocab: "Devote", meaning: "อุทิศตน" },
+      { vocab: "Diagnose", meaning: "วินิจฉัย" }, { vocab: "Different", meaning: "แตกต่าง" },
+      { vocab: "Difficult", meaning: "ยากลำบาก" }, { vocab: "Digital", meaning: "ดิจิทัล" },
+      { vocab: "Dignity", meaning: "ศักดิ์ศรี" }, { vocab: "Diligence", meaning: "ความขยันเพียร" },
+      { vocab: "Dimension", meaning: "มิติ, ขนาด" }, { vocab: "Direct", meaning: "โดยตรง" },
+      { vocab: "Disappear", meaning: "หายสาบสูญ" }, { vocab: "Disaster", meaning: "ภัยพิบัติ" },
+      { vocab: "Discipline", meaning: "วินัย" }, { vocab: "Discover", meaning: "ค้นพบ" },
+      { vocab: "Discuss", meaning: "พูดคุยถกเถียง" }, { vocab: "Disease", meaning: "โรคภัย" },
+      { vocab: "Dismiss", meaning: "ไล่ออก, ยกเลิก" }, { vocab: "Display", meaning: "แสดงผล" },
+      { vocab: "Dispute", meaning: "ข้อโต้แย้ง" }, { vocab: "Distance", meaning: "ระยะทาง" },
+      { vocab: "Distinct", meaning: "แตกต่างชัดเจน" }, { vocab: "Distribute", meaning: "แจกจ่าย" },
+      { vocab: "Diverse", meaning: "หลากหลาย" }, { vocab: "Divide", meaning: "แบ่งปัน" },
+      { vocab: "Document", meaning: "เอกสาร" }, { vocab: "Domain", meaning: "ขอบเขต" },
+      { vocab: "Dominant", meaning: "โดดเด่น" }, { vocab: "Donate", meaning: "บริจาค" },
+      { vocab: "Doubt", meaning: "สงสัย" }, { vocab: "Dramatic", meaning: "ตื่นเต้นตระการตา" },
+      { vocab: "Durable", meaning: "ทนทาน" }, { vocab: "Dynamic", meaning: "คล่องตัว" },
+      { vocab: "Eager", meaning: "กระตือรือร้น" }, { vocab: "Earn", meaning: "ได้รับรายได้" },
+      { vocab: "Economy", meaning: "เศรษฐกิจ" }, { vocab: "Educate", meaning: "ให้การศึกษา" },
+      { vocab: "Effect", meaning: "ผลลัพธ์" }, { vocab: "Effective", meaning: "มีประสิทธิภาพ" },
+      { vocab: "Efficiency", meaning: "สมรรถภาพ" }, { vocab: "Effort", meaning: "ความพยายาม" },
+      { vocab: "Elaborate", meaning: "ละเอียดยิบย่อย" }, { vocab: "Elect", meaning: "คัดเลือก" },
+      { vocab: "Elegant", meaning: "สง่างาม" }, { vocab: "Element", meaning: "องค์ประกอบ" },
+      { vocab: "Eliminate", meaning: "กำจัดออก" }, { vocab: "Embrace", meaning: "อ้าแขนรับ" },
+      { vocab: "Emerge", meaning: "ปรากฏขึ้น" }, { vocab: "Empathy", meaning: "ความเข้าใจความรู้สึก" },
+      { vocab: "Emphasis", meaning: "การเน้นย้ำ" }, { vocab: "Employee", meaning: "พนักงาน" },
+      { vocab: "Empower", meaning: "ให้権อำนาจ" }, { vocab: "Enable", meaning: "ทำให้สามารถ" },
+      { vocab: "Encounter", meaning: "เผชิญหน้า" }, { vocab: "Encourage", meaning: "ให้กำลังใจ" },
+      { vocab: "Endeavor", meaning: "ความพยายาม" }, { vocab: "Endure", meaning: "อดทน" },
+      { vocab: "Energy", meaning: "พลังงาน" }, { vocab: "Enforce", meaning: "บังคับใช้" },
+      { vocab: "Engage", meaning: "มีส่วนร่วม" }, { vocab: "Enhance", meaning: "ปรับปรุงเพิ่มพูน" },
+      { vocab: "Enormous", meaning: "ใหญ่โตมโหฬาร" }, { vocab: "Ensure", meaning: "รับรอง" },
+      { vocab: "Enthusiasm", meaning: "ความกระตือรือร้น" }, { vocab: "Entire", meaning: "ทั้งหมด" },
+      { vocab: "Environment", meaning: "สิ่งแวดล้อม" }, { vocab: "Equip", meaning: "ติดตั้งอุปกรณ์" },
+      { vocab: "Essential", meaning: "จำเป็นอย่างยิ่ง" }, { vocab: "Establish", meaning: "ก่อตั้ง" },
+      { vocab: "Estimate", meaning: "ประมาณการ" }, { vocab: "Evaluate", meaning: "ประเมินค่า" },
+      { vocab: "Evidence", meaning: "หลักฐาน" }, { vocab: "Examine", meaning: "ตรวจค้น" },
+      { vocab: "Exceed", meaning: "เกินขีดจำกัด" }, { vocab: "Excel", meaning: "เก่งโดดเด่น" },
+      { vocab: "Exchange", meaning: "แลกเปลี่ยน" }, { vocab: "Expand", meaning: "ขยายตัว" },
+      { vocab: "Expect", meaning: "คาดหวัง" }, { vocab: "Experience", meaning: "ประสบการณ์" },
+      { vocab: "Explore", meaning: "สำรวจ" }, { vocab: "Extend", meaning: "ยืดขยายเวลา" },
+      { vocab: "Extraordinary", meaning: "พิเศษ" }, { vocab: "Facilitate", meaning: "อำนวยความสะดวก" },
+      { vocab: "Factor", meaning: "ปัจจัย" }, { vocab: "Failure", meaning: "ความล้มเหลว" },
+      { vocab: "Fascinating", meaning: "น่าหลงใหล" }, { vocab: "Feature", meaning: "คุณสมบัติ" },
+      { vocab: "Flexible", meaning: "ยืดหยุ่น" }, { vocab: "Focus", meaning: "โฟกัส" },
+      { vocab: "Foundation", meaning: "รากฐาน" }, { vocab: "Freedom", meaning: "อิสรภาพ" },
+      { vocab: "Generate", meaning: "สร้างขึ้น" }, { vocab: "Generous", meaning: "ใจกว้าง" },
+      { vocab: "Genuine", meaning: "แท้จริง" }, { vocab: "Goal", meaning: "เป้าหมาย" },
+      { vocab: "Gratitude", meaning: "ความรู้สึกขอบคุณ" }, { vocab: "Guarantee", meaning: "การรับประกัน" },
+      { vocab: "Harmony", meaning: "ความกลมเกลียว" }, { vocab: "Highlight", meaning: "เน้นย้ำ" },
+      { vocab: "Honest", meaning: "ซื่อสัตย์" }, { vocab: "Hospitality", meaning: "การต้อนรับดี" },
+      { vocab: "Identify", meaning: "ระบุตัวตน" }, { vocab: "Ignore", meaning: "เพิกเฉย" },
+      { vocab: "Impact", meaning: "ผลกระทบ" }, { vocab: "Implement", meaning: "นำไปปฏิบัติ" },
+      { vocab: "Importance", meaning: "ความสำคัญ" }, { vocab: "Improve", meaning: "ปรับปรุงดีขึ้น" },
+      { vocab: "Include", meaning: "รวมถึง" }, { vocab: "Increase", meaning: "เพิ่มขึ้น" },
+      { vocab: "Independent", meaning: "อิสระ" }, { vocab: "Indicate", meaning: "บ่งบอก" },
+      { vocab: "Individual", meaning: "แต่ละบุคคล" }, { vocab: "Industry", meaning: "อุตสาหกรรม" },
+      { vocab: "Influence", meaning: "มีอิทธิพลต่อ" }, { vocab: "Inform", meaning: "แจ้งข้อมูล" },
+      { vocab: "Initial", meaning: "ขั้นแรกเริ่ม" }, { vocab: "Initiative", meaning: "ความคิดริเริ่ม" },
+      { vocab: "Innovate", meaning: "สร้างนวัตกรรม" }, { vocab: "Insight", meaning: "มุมมองลึกซึ้ง" },
+      { vocab: "Inspiration", meaning: "แรงบันดาลใจ" }, { vocab: "Install", meaning: "ติดตั้ง" },
+      { vocab: "Integrity", meaning: "ความซื่อสัตย์สุจริต" }, { vocab: "Intelligent", meaning: "ฉลาดหลักแหลม" },
+      { vocab: "Intend", meaning: "ตั้งใจ" }, { vocab: "Interaction", meaning: "การปฏิสัมพันธ์" },
+      { vocab: "Interest", meaning: "ความสนใจ" }, { vocab: "Interpret", meaning: "ตีความ" },
+      { vocab: "Interrupt", meaning: "ขัดจังหวะ" }, { vocab: "Interview", meaning: "สัมภาษณ์" },
+      { vocab: "Introduce", meaning: "แนะนำ" }, { vocab: "Invent", meaning: "ประดิษฐ์" },
+      { vocab: "Invest", meaning: "ลงทุน" }, { vocab: "Investigate", meaning: "สืบสวนสอบสวน" },
+      { vocab: "Invite", meaning: "เชื้อเชิญ" }, { vocab: "Involve", meaning: "เกี่ยวข้อง" },
+      { vocab: "Issue", meaning: "ประเด็นปัญหา" }, { vocab: "Journey", meaning: "การเดินทาง" },
+      { vocab: "Judgment", meaning: "การตัดสิน" }, { vocab: "Justify", meaning: "ให้เหตุผล" },
+      { vocab: "Knowledge", meaning: "ความรู้" }, { vocab: "Leadership", meaning: "ภาวะผู้นำ" },
+      { vocab: "Legend", meaning: "ตำนาน" }, { vocab: "Limit", meaning: "ขีดจำกัด" },
+      { vocab: "Logic", meaning: "ตรรกะ" }, { vocab: "Loyalty", meaning: "ความจงรักภักดี" },
+      { vocab: "Maintain", meaning: "รักษาไว้" }, { vocab: "Manage", meaning: "จัดการ" },
+      { vocab: "Market", meaning: "ตลาด" }, { vocab: "Measure", meaning: "วัดขนาด" },
+      { vocab: "Mechanism", meaning: "กลไก" }, { vocab: "Mention", meaning: "กล่าวถึง" },
+      { vocab: "Method", meaning: "วิธีการ" }, { vocab: "Mindset", meaning: "กรอบความคิด" },
+      { vocab: "Mission", meaning: "ภารกิจ" }, { vocab: "Modify", meaning: "ปรับเปลี่ยน" },
+      { vocab: "Motivation", meaning: "แรงจูงใจ" }, { vocab: "Navigate", meaning: "นำทาง" },
+      { vocab: "Necessary", meaning: "จำเป็น" }, { vocab: "Negotiate", meaning: "เจรจาต่อรอง" },
+      { vocab: "Network", meaning: "เครือข่าย" }, { vocab: "Objective", meaning: "วัตถุประสงค์" },
+      { vocab: "Observe", meaning: "สังเกตการณ์" }, { vocab: "Obtain", meaning: "ได้รับ" },
+      { vocab: "Opportunity", meaning: "โอกาส" }, { vocab: "Optimize", meaning: "ปรับให้ดีที่สุด" },
+      { vocab: "Option", meaning: "ตัวเลือก" }, { vocab: "Organize", meaning: "จัดระเบียบ" },
+      { vocab: "Outcome", meaning: "ผลลัพธ์" }, { vocab: "Participate", meaning: "มีส่วนร่วม" },
+      { vocab: "Patient", meaning: "อดทน" }, { vocab: "Perform", meaning: "ปฏิบัติงาน" },
+      { vocab: "Perspective", meaning: "มุมมองความคิด" }, { vocab: "Persuade", meaning: "ชักชวน" },
+      { vocab: "Plan", meaning: "วางแผน" }, { vocab: "Positive", meaning: "เชิงบวก" },
+      { vocab: "Potential", meaning: "ศักยภาพ" }, { vocab: "Practical", meaning: "นำไปใช้ได้จริง" },
+      { vocab: "Predict", meaning: "ทำนาย" }, { vocab: "Prefer", meaning: "ชอบมากกว่า" },
+      { vocab: "Prepare", meaning: "ตระเตรียม" }, { vocab: "Presence", meaning: "การปรากฏตัว" },
+      { vocab: "Preserve", meaning: "สงวนรักษา" }, { vocab: "Prevent", meaning: "ป้องกัน" },
+      { vocab: "Priority", meaning: "ลำดับความสำคัญ" }, { vocab: "Problem", meaning: "ปัญหา" },
+      { vocab: "Process", meaning: "กระบวนการ" }, { vocab: "Produce", meaning: "ผลิต" },
+      { vocab: "Profession", meaning: "อาชีพเฉพาะทาง" }, { vocab: "Progress", meaning: "ความคืบหน้า" },
+      { vocab: "Project", meaning: "โครงการ" }, { vocab: "Promote", meaning: "ส่งเสริม" },
+      { vocab: "Proof", meaning: "หลักฐานพิสูจน์" }, { vocab: "Protect", meaning: "ปกป้อง" },
+      { vocab: "Provide", meaning: "จัดหาให้" }, { vocab: "Purpose", meaning: "วัตถุประสงค์" },
+      { vocab: "Quality", meaning: "คุณภาพ" }, { vocab: "React", meaning: "ตอบสนอง" },
+      { vocab: "Realize", meaning: "ตระหนักรู้" }, { vocab: "Reason", meaning: "เหตุผล" },
+      { vocab: "Receive", meaning: "ได้รับ" }, { vocab: "Recognize", meaning: "จดจำได้" },
+      { vocab: "Recommend", meaning: "แนะนำ" }, { vocab: "Reduce", meaning: "ลดจำนวน" },
+      { vocab: "Reflect", meaning: "สะท้อน" }, { vocab: "Regard", meaning: "คำนึงถึง" },
+      { vocab: "Region", meaning: "ภูมิภาค" }, { vocab: "Register", meaning: "ลงทะเบียน" },
+      { vocab: "Regulate", meaning: "ควบคุม" }, { vocab: "Reinforce", meaning: "เสริมความแข็งแกร่ง" },
+      { vocab: "Reject", meaning: "ปฏิเสธ" }, { vocab: "Relation", meaning: "ความสัมพันธ์" },
+      { vocab: "Relax", meaning: "ผ่อนคลาย" }, { vocab: "Release", meaning: "ปลดปล่อย" },
+      { vocab: "Relevant", meaning: "เกี่ยวข้องกัน" }, { vocab: "Reliable", meaning: "เชื่อถือได้" },
+      { vocab: "Relief", meaning: "ความสบายใจ" }, { vocab: "Rely", meaning: "พึ่งพา" },
+      { vocab: "Remain", meaning: "ยังคงเหลืออยู่" }, { vocab: "Remarkable", meaning: "โดดเด่น" },
+      { vocab: "Remember", meaning: "จดจำ" }, { vocab: "Remind", meaning: "เตือนความจำ" },
+      { vocab: "Remove", meaning: "เอาออก" }, { vocab: "Renew", meaning: "ต่ออายุ" },
+      { vocab: "Repair", meaning: "ซ่อมแซม" }, { vocab: "Repeat", meaning: "ทำซ้ำ" },
+      { vocab: "Replace", meaning: "แทนที่" }, { vocab: "Reply", meaning: "ตอบกลับ" },
+      { vocab: "Report", meaning: "รายงาน" }, { vocab: "Represent", meaning: "เป็นตัวแทน" },
+      { vocab: "Require", meaning: "ต้องการ" }, { vocab: "Research", meaning: "วิจัย" },
+      { vocab: "Reserve", meaning: "สำรองไว้" }, { vocab: "Resilient", meaning: "ยืดหยุ่นฟื้นตัวไว" },
+      { vocab: "Resource", meaning: "ทรัพยากร" }, { vocab: "Respect", meaning: "เคารพ" },
+      { vocab: "Respond", meaning: "ตอบสนอง" }, { vocab: "Responsibility", meaning: "ความรับผิดชอบ" },
+      { vocab: "Restore", meaning: "ฟื้นฟูสภาพ" }, { vocab: "Result", meaning: "ผลลัพธ์" },
+      { vocab: "Retain", meaning: "เก็บรักษาไว้" }, { vocab: "Reveal", meaning: "เปิดเผย" },
+      { vocab: "Revenue", meaning: "รายได้" }, { vocab: "Review", meaning: "ทบทวน" },
+      { vocab: "Reward", meaning: "รางวัล" }, { vocab: "Risk", meaning: "ความเสี่ยง" },
+      { vocab: "Role", meaning: "บทบาท" }, { vocab: "Safety", meaning: "ความปลอดภัย" },
+      { vocab: "Satisfy", meaning: "ทำให้พึงพอใจ" }, { vocab: "Schedule", meaning: "ตารางเวลา" },
+      { vocab: "Scientific", meaning: "ทางวิทยาศาสตร์" }, { vocab: "Search", meaning: "ค้นหา" },
+      { vocab: "Section", meaning: "ส่วน, แผนก" }, { vocab: "Secure", meaning: "ปลอดภัย" },
+      { vocab: "Select", meaning: "เลือก" }, { vocab: "Sense", meaning: "ประสาทสัมผัส" },
+      { vocab: "Separate", meaning: "แยกออกจากกัน" }, { vocab: "Sequence", meaning: "ลำดับขั้นตอน" },
+      { vocab: "Serious", meaning: "จริงจัง" }, { vocab: "Service", meaning: "บริการ" },
+      { vocab: "Setback", meaning: "อุปสรรคชั่วคราว" }, { vocab: "Settle", meaning: "จัดการตกลง" },
+      { vocab: "Share", meaning: "แบ่งปัน" }, { vocab: "Shift", meaning: "สับเปลี่ยน" },
+      { vocab: "Signal", meaning: "สัญญาณ" }, { vocab: "Significant", meaning: "สำคัญมีนัยสำคัญ" },
+      { vocab: "Similar", meaning: "คล้ายคลึง" }, { vocab: "Simple", meaning: "ง่ายดาย" },
+      { vocab: "Sincere", meaning: "จริงใจ" }, { vocab: "Situation", meaning: "สถานการณ์" },
+      { vocab: "Skill", meaning: "ทักษะ" }, { vocab: "Solution", meaning: "ทางแก้ไขปัญหา" },
+      { vocab: "Solve", meaning: "แก้ไข" }, { vocab: "Source", meaning: "แหล่งที่มา" },
+      { vocab: "Specific", meaning: "เจาะจง" }, { vocab: "Stability", meaning: "ความเสถียร" },
+      { vocab: "Standard", meaning: "มาตรฐาน" }, { vocab: "Strategy", meaning: "กลยุทธ์" },
+      { vocab: "Strength", meaning: "จุดแข็ง" }, { vocab: "Structure", meaning: "โครงสร้าง" },
+      { vocab: "Success", meaning: "ความสำเร็จ" }, { vocab: "Succeed", meaning: "ประสบความสำเร็จ" },
+      { vocab: "Sufficient", meaning: "เพียงพอ" }, { vocab: "Suggest", meaning: "เสนอแนะ" },
+      { vocab: "Suitable", meaning: "เหมาะสม" }, { vocab: "Summary", meaning: "สรุปความ" },
+      { vocab: "Support", meaning: "สนับสนุน" }, { vocab: "Surprise", meaning: "ประหลาดใจ" },
+      { vocab: "Survive", meaning: "อยู่รอด" }, { vocab: "Sustainable", meaning: "ยั่งยืน" },
+      { vocab: "System", meaning: "ระบบ" }, { vocab: "Target", meaning: "เป้าหมาย" },
+      { vocab: "Task", meaning: "ภารกิจหน้าที่" }, { vocab: "Teamwork", meaning: "การทำงานเป็นทีม" },
+      { vocab: "Technology", meaning: "เทคโนโลยี" }, { vocab: "Temporary", meaning: "ชั่วคราว" },
+      { vocab: "Tendency", meaning: "แนวโน้ม" }, { vocab: "Theory", meaning: "ทฤษฎี" },
+      { vocab: "Thought", meaning: "ความคิด" }, { vocab: "Threat", meaning: "ภัยคุกคาม" },
+      { vocab: "Thrive", meaning: "เจริญเติบโต" }, { vocab: "Time", meaning: "เวลา" },
+      { vocab: "Tolerance", meaning: "ความอดกลั้น" }, { vocab: "Topic", meaning: "หัวข้อ" },
+      { vocab: "Tradition", meaning: "ประเพณี" }, { vocab: "Transfer", meaning: "โอนย้าย" },
+      { vocab: "Transform", meaning: "เปลี่ยนแปลงรูป" }, { vocab: "Trend", meaning: "แนวโน้มกระแส" },
+      { vocab: "Trust", meaning: "ความไว้วางใจ" }, { vocab: "Ultimate", meaning: "ที่สุด, ขั้นสูงสุด" },
+      { vocab: "Understand", meaning: "เข้าใจ" }, { vocab: "Unique", meaning: "มีเอกลักษณ์" },
+      { vocab: "Unite", meaning: "รวมกันเป็นหนึ่ง" }, { vocab: "Universal", meaning: "เป็นสากล" },
+      { vocab: "Urgent", meaning: "เร่งด่วน" }, { vocab: "Usage", meaning: "การใช้งาน" },
+      { vocab: "Useful", meaning: "เป็นประโยชน์" }, { vocab: "Valid", meaning: "ถูกต้องสมบูรณ์" },
+      { vocab: "Valuable", meaning: "มีคุณค่า" }, { vocab: "Value", meaning: "มูลค่า" },
+      { vocab: "Variety", meaning: "ความหลากหลาย" }, { vocab: "Vast", meaning: "กว้างใหญ่ไพศาล" },
+      { vocab: "Verify", meaning: "ตรวจสอบ" }, { vocab: "Version", meaning: "เวอร์ชัน" },
+      { vocab: "Victory", meaning: "ชัยชนะ" }, { vocab: "View", meaning: "มุมมอง" },
+      { vocab: "Vision", meaning: "วิสัยทัศน์" }, { vocab: "Vital", meaning: "สำคัญยิ่ง" },
+      { vocab: "Volume", meaning: "ปริมาณ" }, { vocab: "Voluntary", meaning: "ด้วยความสมัครใจ" },
+      { vocab: "Wisdom", meaning: "ภูมิปัญญา" }, { vocab: "Withdraw", meaning: "ถอนตัว" },
+      { vocab: "Yield", meaning: "ยอมตาม, ผลผลิต" }, { vocab: "Zone", meaning: "พื้นที่" }
     ];
 
+    // กรองคำศัพท์ซ้ำออกและจำกัดไว้ที่ 300 คำพอดี
+    const uniqueFlashcards = [];
+    const seen = new Set();
+
+    for (const item of rawFlashcards) {
+      const lowerVocab = item.vocab.toLowerCase();
+      if (!seen.has(lowerVocab)) {
+        seen.add(lowerVocab);
+        uniqueFlashcards.push(item);
+      }
+      if (uniqueFlashcards.length >= 300) break;
+    }
+
+    const allFlashcards = uniqueFlashcards;
+    let currentList = [...allFlashcards];
     let currentIndex = 0;
 
     function speakVocab(event) {
       if (event) event.stopPropagation();
-      const text = flashcards[currentIndex].vocab;
+      if (currentList.length === 0) return;
+
+      const text = currentList[currentIndex].vocab;
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
       utterance.rate = 0.9;
+      
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utterance);
     }
 
     function flipCard() {
+      if (currentList.length === 0) return;
+      document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function updateCardDisplay() {
       const card = document.getElementById('flashcard');
-      if (card) card.classList.toggle('flipped');
+      card.classList.remove('flipped');
+
+      if (currentList.length === 0) {
+        document.getElementById('vocabText').innerText = "ไม่พบคำศัพท์";
+        document.getElementById('meaningText').innerText = "ลองค้นหาด้วยคำอื่น";
+        document.getElementById('cardCounter').innerText = "0 / 0";
+        document.getElementById('prevBtn').disabled = true;
+        document.getElementById('nextBtn').disabled = true;
+        return;
+      }
+
+      document.getElementById('vocabText').innerText = currentList[currentIndex].vocab;
+      document.getElementById('meaningText').innerText = currentList[currentIndex].meaning;
+      document.getElementById('cardCounter').innerText = `คำที่ ${currentIndex + 1} / ${currentList.length}`;
+      
+      document.getElementById('prevBtn').disabled = currentIndex === 0;
+      document.getElementById('nextBtn').disabled = currentIndex === currentList.length - 1;
+    }
+
+    function prevCard() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateCardDisplay();
+        speakVocab();
+      }
     }
 
     function nextCard() {
-      const card = document.getElementById('flashcard');
-      if (card) card.classList.remove('flipped');
-      
-      setTimeout(() => {
-        currentIndex = (currentIndex + 1) % flashcards.length;
-        updateCardContent();
+      if (currentIndex < currentList.length - 1) {
+        currentIndex++;
+        updateCardDisplay();
         speakVocab();
-      }, 300);
+      }
     }
 
-    function searchWord() {
-      const searchInput = document.getElementById('searchInput');
-      if (!searchInput) return;
-      
-      const keyword = searchInput.value.toLowerCase().trim();
-      if (!keyword) return;
-
-      const foundIndex = flashcards.findIndex(card => 
-        card.vocab.toLowerCase().includes(keyword) || 
-        card.meaning.includes(keyword)
+    function filterCards() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      currentList = allFlashcards.filter(item => 
+        item.vocab.toLowerCase().includes(query) || 
+        item.meaning.toLowerCase().includes(query)
       );
-
-      if (foundIndex !== -1) {
-        currentIndex = foundIndex;
-        const card = document.getElementById('flashcard');
-        if (card) card.classList.remove('flipped');
-        updateCardContent();
-      }
+      currentIndex = 0;
+      updateCardDisplay();
     }
 
-    function updateCardContent() {
-      const vocabEl = document.getElementById('vocabText');
-      const meaningEl = document.getElementById('meaningText');
-      const exampleEnEl = document.getElementById('exampleEn');
-      const exampleThEl = document.getElementById('exampleTh');
-
-      if (vocabEl && meaningEl) {
-        const item = flashcards[currentIndex];
-        vocabEl.innerText = item.vocab;
-        meaningEl.innerText = item.meaning;
-        exampleEnEl.innerText = `"${item.exampleEn}"`;
-        exampleThEl.innerText = `แปล: ${item.exampleTh}`;
-      }
-    }
+    updateCardDisplay();
   </script>
 
 </body>
