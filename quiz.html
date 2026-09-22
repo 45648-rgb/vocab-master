@@ -1,692 +1,435 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz Game - ระบบควิซหลากหลายรูปแบบ + High Score</title>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <style>
-    :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --bg: #f1f5f9;
-      --card-bg: #ffffff;
-      --text: #1e293b;
-    }
-
-    body {
-      font-family: 'Sukhumvit Set', 'Kanit', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 15px;
-      box-sizing: border-box;
-    }
-
-    .quiz-card {
-      background: var(--card-bg);
-      width: 100%;
-      max-width: 480px;
-      border-radius: 24px;
-      padding: 24px;
-      box-shadow: 0 20px 30px rgba(0,0,0,0.08);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Header Nav & Stats */
-    .header-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .btn-home {
-      text-decoration: none;
-      color: var(--primary);
-      font-weight: bold;
-      font-size: 0.95rem;
-    }
-
-    .highscore-badge {
-      background: #fef3c7;
-      color: #b45309;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .stats-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #f8fafc;
-      padding: 10px 16px;
-      border-radius: 14px;
-      margin-bottom: 15px;
-      font-weight: bold;
-    }
-
-    .streak-badge {
-      color: #f97316;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* Timer Bar */
-    .timer-container {
-      width: 100%;
-      height: 8px;
-      background: #e2e8f0;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      overflow: hidden;
-    }
-
-    .timer-bar {
-      height: 100%;
-      width: 100%;
-      background: var(--primary);
-      transition: width 0.1s linear, background-color 0.3s;
-    }
-
-    /* Question Box */
-    .question-box {
-      text-align: center;
-      margin-bottom: 20px;
-      min-height: 100px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .question-type-badge {
-      align-self: center;
-      background: #e0e7ff;
-      color: var(--primary);
-      padding: 3px 10px;
-      border-radius: 10px;
-      font-size: 0.75rem;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .question-title {
-      font-size: 0.9rem;
-      color: #64748b;
-      margin-bottom: 6px;
-    }
-
-    .question-word {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    /* Power-ups / Helpers */
-    .powerups {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .btn-powerup {
-      background: #e0e7ff;
-      color: var(--primary);
-      border: none;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-powerup:hover:not(:disabled) {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-powerup:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    /* Choice Options Grid */
-    .options-grid {
-      display: grid;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .btn-option {
-      width: 100%;
-      padding: 14px 18px;
-      border: 2px solid #e2e8f0;
-      background: white;
-      border-radius: 16px;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      text-align: left;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-option:hover:not(:disabled) {
-      border-color: var(--primary);
-      background: #f5f3ff;
-      transform: translateY(-2px);
-    }
-
-    .btn-option.correct {
-      background: #d1fae5 !important;
-      border-color: var(--success) !important;
-      color: #065f46 !important;
-    }
-
-    .btn-option.wrong {
-      background: #fee2e2 !important;
-      border-color: var(--danger) !important;
-      color: #991b1b !important;
-    }
-
-    .btn-option:disabled {
-      cursor: not-allowed;
-    }
-
-    /* Typing Question Input */
-    .typing-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .typing-input {
-      width: 100%;
-      padding: 14px;
-      border: 2px solid #e2e8f0;
-      border-radius: 16px;
-      font-size: 1.1rem;
-      text-align: center;
-      outline: none;
-      box-sizing: border-box;
-      font-weight: bold;
-    }
-
-    .typing-input:focus {
-      border-color: var(--primary);
-    }
-
-    .btn-submit {
-      padding: 12px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 14px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    /* Animations */
-    .shake {
-      animation: shake 0.4s ease-in-out;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-8px); }
-      40%, 80% { transform: translateX(8px); }
-    }
-
-    /* Result View */
-    .result-box {
-      text-align: center;
-      display: none;
-    }
-
-    .new-record-badge {
-      background: #ef4444;
-      color: white;
-      font-weight: bold;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      display: inline-block;
-      margin-bottom: 10px;
-      animation: pulse 1s infinite alternate;
-    }
-
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.08); }
-    }
-
-    .result-score {
-      font-size: 3rem;
-      font-weight: 900;
-      color: var(--primary);
-      margin: 10px 0;
-    }
-
-    .btn-restart {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      background: var(--primary);
-      color: white;
-      font-size: 1.1rem;
-      font-weight: bold;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-restart:hover {
-      background: var(--primary-hover);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบทดสอบคำศัพท์ 550 คำ - Gamified Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .quiz-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 650px;
+        }
+        .header-stats {
+            display: flex;
+            justify-content: space-between;
+            background: #f1f2f6;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2f3640;
+            margin-bottom: 20px;
+        }
+        .timer-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: #dfe4ea;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .timer-bar {
+            width: 100%;
+            height: 100%;
+            background-color: #2ed573;
+            transition: width 1s linear;
+        }
+        h2 {
+            color: #2f3640;
+            text-align: center;
+            margin-top: 0;
+        }
+        .quiz-info {
+            font-size: 13px;
+            color: #718093;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2f3640;
+        }
+        .options button {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border: 2px solid #dfe4ea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: left;
+            transition: 0.2s;
+        }
+        .options button:hover:not(:disabled) {
+            background-color: #e3f2fd;
+            border-color: #3498db;
+        }
+        .options button.hidden-option {
+            display: none;
+        }
+        .lifelines {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .btn-lifeline, .btn-skip {
+            flex: 1;
+            padding: 10px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .btn-lifeline { background-color: #ffa502; }
+        .btn-lifeline:hover:not(:disabled) { background-color: #ff7f00; }
+        .btn-skip { background-color: #ff4757; }
+        .btn-skip:hover:not(:disabled) { background-color: #ff6b81; }
+        .btn-lifeline:disabled, .btn-skip:disabled {
+            background-color: #ced6e0;
+            cursor: not-allowed;
+        }
+        #result-container {
+            text-align: center;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+            text-align: left;
+            background: #f1f2f6;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .btn-restart {
+            width: 100%;
+            padding: 12px;
+            background-color: #2ed573;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+        .btn-restart:hover { background-color: #26af5f; }
+    </style>
 </head>
 <body>
 
-  <div class="quiz-card" id="quizCard">
-    <div id="quizView">
-      <div class="header-nav">
-        <a href="index.html" class="btn-home">🏠 หน้าหลัก</a>
-        <div class="highscore-badge">👑 สถิติสูงสุด: <span id="highScoreText">0</span></div>
-      </div>
-
-      <div class="stats-bar">
-        <div>คะแนน: <span id="scoreText" style="color:var(--primary);">0</span></div>
-        <span id="questionProgress" style="font-size:0.85rem; color:#64748b;">ข้อที่ 1/10</span>
-        <div class="streak-badge">🔥 <span id="streakText">0</span></div>
-      </div>
-
-      <div class="timer-container">
-        <div class="timer-bar" id="timerBar"></div>
-      </div>
-
-      <div class="question-box">
-        <div class="question-type-badge" id="modeBadge">โหมดตัวเลือก</div>
-        <div class="question-title" id="questionTitle">คำนี้แปลว่าอะไร?</div>
-        <div class="question-word" id="vocabQuestion">Loading...</div>
-      </div>
-
-      <div class="powerups">
-        <button class="btn-powerup" id="btn5050" onclick="use5050()">🪄 50:50</button>
-        <button class="btn-powerup" id="btnSkip" onclick="useSkip()">⏭️ ข้ามข้อนี้</button>
-      </div>
-
-      <div class="options-grid" id="optionsGrid"></div>
-
-      <div class="typing-container" id="typingGrid" style="display: none;">
-        <input type="text" class="typing-input" id="typingInput" placeholder="พิมพ์คำศัพท์ภาษาอังกฤษที่นี่..." autocomplete="off">
-        <button class="btn-submit" onclick="checkTypingAnswer()">ส่งคำตอบ</button>
-      </div>
-    </div>
-
-    <div class="result-box" id="resultView">
-      <div id="newRecordBadge" class="new-record-badge" style="display: none;">🎉 สถิติใหม่สูงสุด! 🎉</div>
-      <h2 style="margin-bottom:5px; margin-top: 5px;">จบการทดสอบ!</h2>
-      <p style="color:#64748b; margin-top:0;">นี่คือคะแนนรวมของคุณ</p>
-      <div class="result-score" id="finalScore">0 / 10</div>
-      <p id="accuracyText" style="font-weight:bold; color:#475569; margin-bottom:15px;">ความแม่นยำ: 0%</p>
-      <p style="font-size:0.9rem; color:#64748b; margin-bottom:25px;">คะแนนสูงสุดตลอดกาล: <b id="bestScoreResult">0</b> คะแนน</p>
-      <button class="btn-restart" onclick="startQuiz()">🔄 เล่นอีกครั้ง</button>
-    </div>
-  </div>
-
-  <script>
-    const vocabData = [
-      { vocab: "Ability", meaning: "ความสามารถ" },
-      { vocab: "Abroad", meaning: "ต่างประเทศ" },
-      { vocab: "Absorb", meaning: "ดูดซับ" },
-      { vocab: "Accept", meaning: "ยอมรับ" },
-      { vocab: "Accident", meaning: "อุบัติเหตุ" },
-      { vocab: "Achieve", meaning: "บรรลุเป้าหมาย" },
-      { vocab: "Accurate", meaning: "ถูกต้องแม่นยำ" },
-      { vocab: "Adapt", meaning: "ปรับตัว" },
-      { vocab: "Admire", meaning: "ชื่นชม" },
-      { vocab: "Advance", meaning: "ก้าวหน้า" },
-      { vocab: "Advantage", meaning: "ข้อดี" },
-      { vocab: "Analyze", meaning: "วิเคราะห์" },
-      { vocab: "Ancient", meaning: "โบราณ" },
-      { vocab: "Apologize", meaning: "ขอโทษ" },
-      { vocab: "Attract", meaning: "ดึงดูด" },
-      { vocab: "Benefit", meaning: "ผลประโยชน์" },
-      { vocab: "Calculate", meaning: "คำนวณ" },
-      { vocab: "Challenge", meaning: "การท้าทาย" },
-      { vocab: "Create", meaning: "สร้างสรรค์" },
-      { vocab: "Develop", meaning: "พัฒนา" }
-    ];
-
-    const TOTAL_QUESTIONS = 10;
-    const TIME_LIMIT = 10;
-    
-    let quizQuestions = [];
-    let currentQuestionIdx = 0;
-    let score = 0;
-    let streak = 0;
-    let highScore = 0;
-    let timerInterval = null;
-    let timeLeft = TIME_LIMIT;
-    let isAnswered = false;
-    let currentMode = 'enToTh'; // 'enToTh', 'thToEn', 'typing'
-
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    function playSound(type) {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      if (type === 'correct') {
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-      } else if (type === 'wrong') {
-        osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(196, audioCtx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-      }
-    }
-
-    function loadHighScore() {
-      highScore = parseInt(localStorage.getItem('quiz_highscore')) || 0;
-      document.getElementById('highScoreText').innerText = highScore;
-    }
-
-    function saveHighScore(newScore) {
-      if (newScore > highScore) {
-        highScore = newScore;
-        localStorage.setItem('quiz_highscore', highScore);
-        document.getElementById('highScoreText').innerText = highScore;
-        return true; // ทำลายสถิติใหม่
-      }
-      return false;
-    }
-
-    function startQuiz() {
-      loadHighScore();
-      const shuffled = [...vocabData].sort(() => 0.5 - Math.random());
-      quizQuestions = shuffled.slice(0, TOTAL_QUESTIONS);
-      
-      currentQuestionIdx = 0;
-      score = 0;
-      streak = 0;
-      
-      document.getElementById('scoreText').innerText = score;
-      document.getElementById('streakText').innerText = streak;
-      document.getElementById('btn5050').disabled = false;
-      document.getElementById('btnSkip').disabled = false;
-      document.getElementById('quizView').style.display = 'block';
-      document.getElementById('resultView').style.display = 'none';
-
-      loadQuestion();
-    }
-
-    function loadQuestion() {
-      isAnswered = false;
-      clearInterval(timerInterval);
-
-      const q = quizQuestions[currentQuestionIdx];
-      document.getElementById('questionProgress').innerText = `ข้อที่ ${currentQuestionIdx + 1}/${TOTAL_QUESTIONS}`;
-
-      // สุ่มโหมดคำถาม 3 รูปแบบ
-      const modes = ['enToTh', 'thToEn', 'typing'];
-      currentMode = modes[Math.floor(Math.random() * modes.length)];
-
-      const optionsGrid = document.getElementById('optionsGrid');
-      const typingGrid = document.getElementById('typingGrid');
-      const btn5050 = document.getElementById('btn5050');
-
-      if (currentMode === 'enToTh') {
-        document.getElementById('modeBadge').innerText = '🇬🇧 ➡️ 🇹🇭 เลือกคำแปลภาษาไทย';
-        document.getElementById('questionTitle').innerText = 'คำศัพท์นี้แปลว่าอะไร?';
-        document.getElementById('vocabQuestion').innerText = q.vocab;
-        optionsGrid.style.display = 'grid';
-        typingGrid.style.display = 'none';
-        btn5050.style.display = 'inline-block';
-        setupMultipleChoiceOptions(q.meaning, 'meaning');
-
-      } else if (currentMode === 'thToEn') {
-        document.getElementById('modeBadge').innerText = '🇹🇭 ➡️ 🇬🇧 เลือกคำศัพท์ภาษาอังกฤษ';
-        document.getElementById('questionTitle').innerText = 'คำศัพท์ภาษาอังกฤษของคำนี้คืออะไร?';
-        document.getElementById('vocabQuestion').innerText = q.meaning;
-        optionsGrid.style.display = 'grid';
-        typingGrid.style.display = 'none';
-        btn5050.style.display = 'inline-block';
-        setupMultipleChoiceOptions(q.vocab, 'vocab');
-
-      } else if (currentMode === 'typing') {
-        document.getElementById('modeBadge').innerText = '✍️ พิมพ์คำตอบสะกดคำศัพท์';
-        document.getElementById('questionTitle').innerText = 'พิมพ์คำศัพท์ภาษาอังกฤษของคำว่า:';
-        document.getElementById('vocabQuestion').innerText = q.meaning;
-        optionsGrid.style.display = 'none';
-        typingGrid.style.display = 'flex';
-        btn5050.style.display = 'none'; // โหมดพิมพ์ไม่มี 50:50
+    <div class="quiz-container">
+        <h2>⚔️ ศัพท์ 550 คำ Challenge</h2>
         
-        const typingInput = document.getElementById('typingInput');
-        typingInput.value = '';
-        typingInput.disabled = false;
-        setTimeout(() => typingInput.focus(), 100);
-      }
+        <div id="quiz-app">
+            <div class="header-stats">
+                <span id="score-display">🏆 แต้ม XP: 0</span>
+                <span id="streak-display">🔥 Streak: 0</span>
+                <span id="timer-display">⏱️ 15s</span>
+            </div>
+            
+            <div class="timer-bar-container">
+                <div class="timer-bar" id="timer-bar"></div>
+            </div>
 
-      startTimer();
-    }
+            <div class="quiz-info" id="quiz-mode-title">กำลังโหลดรูปแบบการทดสอบ...</div>
+            <div class="question" id="question-text">กำลังโหลดคำถาม...</div>
+            <div class="options" id="options-container"></div>
 
-    function setupMultipleChoiceOptions(correctValue, keyName) {
-      const wrongOptions = vocabData
-        .filter(item => item[keyName] !== correctValue)
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 3)
-        .map(item => item[keyName]);
+            <div class="lifelines">
+                <button class="btn-lifeline" id="btn-5050" onclick="useFiftyFifty()">⚡ ตัดช้อยส์ 50/50</button>
+                <button class="btn-skip" id="btn-skip-q" onclick="skipQuestion()">⏭️ ข้ามข้อนี้</button>
+            </div>
+        </div>
 
-      const options = [...wrongOptions, correctValue].sort(() => 0.5 - Math.random());
-      const optionsGrid = document.getElementById('optionsGrid');
-      optionsGrid.innerHTML = '';
+        <div id="result-container" style="display: none;">
+            <h2>📊 สรุปสถิติการทดสอบ</h2>
+            <div class="stats-grid" id="stats-summary"></div>
+            <button class="btn-restart" onclick="initQuiz()">เล่นใหม่อีกครั้ง</button>
+        </div>
+    </div>
 
-      options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'btn-option';
-        btn.innerText = opt;
-        btn.onclick = () => checkChoiceAnswer(opt, correctValue, btn);
-        optionsGrid.appendChild(btn);
-      });
-    }
+    <script>
+        // คลังคำศัพท์ (คุณสามารถนำรายการคำศัพท์ทั้ง 550 คำมาวางต่อในนี้ได้เลยครับ)
+        const allVocabulary = [
+            { word: "Ability", meaning: "ความสามารถ" },
+            { word: "Absolute", meaning: "แน่นอน, สมบูรณ์" },
+            { word: "Accelerate", meaning: "เร่งความเร็ว" },
+            { word: "Accept", meaning: "ยอมรับ" },
+            { word: "Access", meaning: "การเข้าถึง" },
+            { word: "Accomplish", meaning: "ทำสำเร็จ" },
+            { word: "Accurate", meaning: "แม่นยำ" },
+            { word: "Achieve", meaning: "บรรลุเป้าหมาย" },
+            { word: "Acknowledge", meaning: "ยอมรับ, รับรู้" },
+            { word: "Acquire", meaning: "ได้รับ" },
+            { word: "Active", meaning: "กระฉับกระเฉง" },
+            { word: "Adapt", meaning: "ปรับตัว" },
+            { word: "Add", meaning: "เพิ่ม" },
+            { word: "Address", meaning: "ที่อยู่, จัดการ" },
+            { word: "Adjust", meaning: "ปรับเปลี่ยน" },
+            { word: "Administer", meaning: "จัดการ, บริหาร" },
+            { word: "Admire", meaning: "ชมเชย, ชื่นชม" },
+            { word: "Admit", meaning: "ยอมรับ" },
+            { word: "Adopt", meaning: "รับเลี้ยง, นำมาใช้" },
+            { word: "Advance", meaning: "ล่วงหน้า, พัฒนา" },
+            { word: "Advantage", meaning: "ข้อได้เปรียบ" },
+            { word: "Advertise", meaning: "โฆษณา" },
+            { word: "Advice", meaning: "คำแนะนำ" },
+            { word: "Advise", meaning: "แนะนำ" },
+            { word: "Affect", meaning: "มีผลกระทบ" },
+            { word: "Afford", meaning: "สามารถซื้อได้" },
+            { word: "Agency", meaning: "หน่วยงาน" },
+            { word: "Agenda", meaning: "วาระการประชุม" },
+            { word: "Agent", meaning: "ตัวแทน" },
+            { word: "Agree", meaning: "เห็นด้วย" },
+            { word: "Ahead", meaning: "ข้างหน้า" },
+            { word: "Aid", meaning: "ความช่วยเหลือ" },
+            { word: "Aim", meaning: "เป้าหมาย, เล็ง" },
+            { word: "Air", meaning: "อากาศ" },
+            { word: "Aircraft", meaning: "อากาศยาน" },
+            { word: "Airline", meaning: "สายการบิน" },
+            { word: "Airport", meaning: "สนามบิน" },
+            { word: "Alarm", meaning: "นาฬิกาปลุก, สัญญาณเตือน" },
+            { word: "Album", meaning: "อัลบั้ม" },
+            { word: "Alcohol", meaning: "แอลกอฮอล์" },
+            { word: "Alive", meaning: "ยังมีชีวิตอยู่" },
+            { word: "Allow", meaning: "อนุญาต" },
+            { word: "Almost", meaning: "เกือบจะ" },
+            { word: "Alone", meaning: "คนเดียว" },
+            { word: "Along", meaning: "ตามทาง" },
+            { word: "Already", meaning: "เรียบร้อยแล้ว" },
+            { word: "Also", meaning: "ด้วย, เช่นกัน" },
+            { word: "Alternative", meaning: "ทางเลือก" },
+            { word: "Although", meaning: "แม้ว่า" },
+            { word: "Always", meaning: "เสมอ" }
+  
+        ];
 
-    function startTimer() {
-      timeLeft = TIME_LIMIT;
-      const timerBar = document.getElementById('timerBar');
-      timerBar.style.width = '100%';
-      timerBar.style.backgroundColor = 'var(--primary)';
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let xp = 0;
+        let streak = 0;
+        let maxStreak = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let currentQuizType = 1;
+        
+        const TOTAL_TIME = 15;
+        let timeLeft = TOTAL_TIME;
+        let timerInterval;
+        let lifelineUsed5050 = false;
+        let skipUsedCount = 0;
 
-      timerInterval = setInterval(() => {
-        timeLeft -= 0.1;
-        const percentage = (timeLeft / TIME_LIMIT) * 100;
-        timerBar.style.width = `${percentage}%`;
-
-        if (percentage < 30) {
-          timerBar.style.backgroundColor = 'var(--danger)';
-        } else if (percentage < 60) {
-          timerBar.style.backgroundColor = 'var(--warning)';
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
         }
 
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          handleTimeout();
+        function initQuiz() {
+            xp = 0;
+            streak = 0;
+            maxStreak = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            currentIndex = 0;
+            lifelineUsed5050 = false;
+            skipUsedCount = 0;
+
+            document.getElementById('quiz-app').style.display = 'block';
+            document.getElementById('result-container').style.display = 'none';
+            document.getElementById('btn-5050').disabled = false;
+            document.getElementById('btn-skip-q').disabled = false;
+
+            currentQuizType = Math.floor(Math.random() * 15) + 1;
+            document.getElementById('quiz-mode-title').innerText = `🧩 รูปแบบคำถามชุดที่ ${currentQuizType} / 15`;
+
+            let shuffledVocab = [...allVocabulary];
+            shuffle(shuffledVocab);
+            currentQuestions = shuffledVocab.slice(0, 10);
+
+            loadQuestion();
         }
-      }, 100);
-    }
 
-    function checkChoiceAnswer(selected, correct, btn) {
-      if (isAnswered) return;
-      isAnswered = true;
-      clearInterval(timerInterval);
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = TOTAL_TIME;
+            document.getElementById('timer-display').innerText = `⏱️ ${timeLeft}s`;
+            let timerBar = document.getElementById('timer-bar');
+            timerBar.style.width = '100%';
 
-      const allBtns = document.querySelectorAll('.btn-option');
-      allBtns.forEach(b => b.disabled = true);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-display').innerText = `⏱️ ${timeLeft}s`;
+                timerBar.style.width = `${(timeLeft / TOTAL_TIME) * 100}%`;
 
-      if (selected === correct) {
-        btn.classList.add('correct');
-        handleCorrectAnswer();
-      } else {
-        btn.classList.add('wrong');
-        allBtns.forEach(b => { if (b.innerText === correct) b.classList.add('correct'); });
-        handleWrongAnswer();
-      }
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
 
-      setTimeout(nextQuestion, 1200);
-    }
+        function handleTimeOut() {
+            streak = 0;
+            wrongCount++;
+            updateStatsDisplay();
+            currentIndex++;
+            loadQuestion();
+        }
 
-    function checkTypingAnswer() {
-      if (isAnswered) return;
-      isAnswered = true;
-      clearInterval(timerInterval);
+        function loadQuestion() {
+            if (currentIndex >= currentQuestions.length) {
+                clearInterval(timerInterval);
+                showResult();
+                return;
+            }
 
-      const input = document.getElementById('typingInput');
-      input.disabled = true;
+            startTimer();
+            const currentItem = currentQuestions[currentIndex];
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
 
-      const userAns = input.value.trim().toLowerCase();
-      const correctAns = quizQuestions[currentQuestionIdx].vocab.toLowerCase();
+            if (currentQuizType % 2 === 1) {
+                questionText.innerText = `ข้อที่ ${currentIndex + 1}: ความหมายของ "${currentItem.word}" คืออะไร?`;
+                let incorrectOptions = allVocabulary.filter(v => v.meaning !== currentItem.meaning).map(v => v.meaning);
+                shuffle(incorrectOptions);
+                
+                let options = [currentItem.meaning, ...incorrectOptions.slice(0, 3)];
+                shuffle(options);
 
-      if (userAns === correctAns) {
-        input.style.borderColor = 'var(--success)';
-        input.style.background = '#d1fae5';
-        handleCorrectAnswer();
-      } else {
-        input.style.borderColor = 'var(--danger)';
-        input.style.background = '#fee2e2';
-        input.value = `ผิด! คำที่ถูกต้องคือ: ${quizQuestions[currentQuestionIdx].vocab}`;
-        handleWrongAnswer();
-      }
+                options.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.innerText = option;
+                    btn.onclick = () => checkAnswer(option, currentItem.meaning);
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                questionText.innerText = `ข้อที่ ${currentIndex + 1}: คำศัพท์ใดตรงกับความหมาย "${currentItem.meaning}"?`;
+                let incorrectOptions = allVocabulary.filter(v => v.word !== currentItem.word).map(v => v.word);
+                shuffle(incorrectOptions);
+                
+                let options = [currentItem.word, ...incorrectOptions.slice(0, 3)];
+                shuffle(options);
 
-      setTimeout(nextQuestion, 1500);
-    }
+                options.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.innerText = option;
+                    btn.onclick = () => checkAnswer(option, currentItem.word);
+                    optionsContainer.appendChild(btn);
+                });
+            }
+        }
 
-    function handleCorrectAnswer() {
-      score++;
-      streak++;
-      playSound('correct');
-      document.getElementById('scoreText').innerText = score;
-      document.getElementById('streakText').innerText = streak;
-    }
+        function checkAnswer(selected, correct) {
+            clearInterval(timerInterval);
+            const buttons = document.querySelectorAll('#options-container button');
 
-    function handleWrongAnswer() {
-      streak = 0;
-      playSound('wrong');
-      document.getElementById('streakText').innerText = streak;
-      document.getElementById('quizCard').classList.add('shake');
-      setTimeout(() => document.getElementById('quizCard').classList.remove('shake'), 400);
-    }
+            if (selected === correct) {
+                correctCount++;
+                streak++;
+                if (streak > maxStreak) maxStreak = streak;
+                xp += 10 + (streak * 2) + (timeLeft * 1);
+                
+                buttons.forEach(btn => {
+                    if (btn.innerText === correct) btn.style.backgroundColor = '#2ed573';
+                    if (btn.innerText === selected && selected !== correct) btn.style.backgroundColor = '#ff4757';
+                    btn.disabled = true;
+                });
+            } else {
+                wrongCount++;
+                streak = 0;
+                buttons.forEach(btn => {
+                    if (btn.innerText === correct) btn.style.backgroundColor = '#2ed573';
+                    if (btn.innerText === selected) btn.style.backgroundColor = '#ff4757';
+                    btn.disabled = true;
+                });
+            }
 
-    function handleTimeout() {
-      if (isAnswered) return;
-      isAnswered = true;
-      handleWrongAnswer();
+            updateStatsDisplay();
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 1000);
+        }
 
-      if (currentMode === 'typing') {
-        const input = document.getElementById('typingInput');
-        input.disabled = true;
-        input.style.background = '#fee2e2';
-        input.value = `หมดเวลา! คำตอบคือ: ${quizQuestions[currentQuestionIdx].vocab}`;
-      } else {
-        const correct = currentMode === 'enToTh' ? quizQuestions[currentQuestionIdx].meaning : quizQuestions[currentQuestionIdx].vocab;
-        document.querySelectorAll('.btn-option').forEach(b => {
-          b.disabled = true;
-          if (b.innerText === correct) b.classList.add('correct');
-        });
-      }
+        function useFiftyFifty() {
+            if (lifelineUsed5050) return;
+            lifelineUsed5050 = true;
+            document.getElementById('btn-5050').disabled = true;
 
-      setTimeout(nextQuestion, 1500);
-    }
+            const currentItem = currentQuestions[currentIndex];
+            const buttons = Array.from(document.querySelectorAll('#options-container button'));
+            
+            let hiddenCount = 0;
+            buttons.forEach(btn => {
+                const isCorrect = (currentQuizType % 2 === 1) ? (btn.innerText === currentItem.meaning) : (btn.innerText === currentItem.word);
+                if (!isCorrect && hiddenCount < 2) {
+                    btn.classList.add('hidden-option');
+                    hiddenCount++;
+                }
+            });
+        }
 
-    function nextQuestion() {
-      currentQuestionIdx++;
-      if (currentQuestionIdx < TOTAL_QUESTIONS) {
-        loadQuestion();
-      } else {
-        showResult();
-      }
-    }
+        function skipQuestion() {
+            clearInterval(timerInterval);
+            skipUsedCount++;
+            document.getElementById('btn-skip-q').disabled = true; 
+            currentIndex++;
+            loadQuestion();
+        }
 
-    function use5050() {
-      if (isAnswered || currentMode === 'typing') return;
-      const q = quizQuestions[currentQuestionIdx];
-      const correct = currentMode === 'enToTh' ? q.meaning : q.vocab;
-      const allBtns = Array.from(document.querySelectorAll('.btn-option'));
-      const wrongBtns = allBtns.filter(b => b.innerText !== correct);
+        function updateStatsDisplay() {
+            document.getElementById('score-display').innerText = `🏆 แต้ม XP: ${xp}`;
+            document.getElementById('streak-display').innerText = `🔥 Streak: ${streak}`;
+        }
 
-      wrongBtns.sort(() => 0.5 - Math.random()).slice(0, 2).forEach(b => {
-        b.style.visibility = 'hidden';
-      });
+        function showResult() {
+            document.getElementById('quiz-app').style.display = 'none';
+            document.getElementById('result-container').style.display = 'block';
 
-      document.getElementById('btn5050').disabled = true;
-    }
+            let accuracy = Math.round((correctCount / currentQuestions.length) * 100) || 0;
 
-    function useSkip() {
-      if (isAnswered) return;
-      document.getElementById('btnSkip').disabled = true;
-      nextQuestion();
-    }
+            document.getElementById('stats-summary').innerHTML = `
+                <div>✨ <b>แต้ม XP รวม:</b> ${xp} XP</div>
+                <div>🎯 <b>ความแม่นยำ:</b> ${accuracy}%</div>
+                <div>✅ <b>ตอบถูก:</b> ${correctCount} ข้อ</div>
+                <div>❌ <b>ตอบผิด:</b> ${wrongCount} ข้อ</div>
+                <div>🔥 <b>Streak สูงสุด:</b> ${maxStreak} ข้อติด</div>
+                <div>⏭️ <b>ข้ามข้อ:</b> ${skipUsedCount} ครั้ง</div>
+            `;
+        }
 
-    function showResult() {
-      document.getElementById('quizView').style.display = 'none';
-      document.getElementById('resultView').style.display = 'block';
-      
-      document.getElementById('finalScore').innerText = `${score} / ${TOTAL_QUESTIONS}`;
-      const accuracy = (score / TOTAL_QUESTIONS) * 100;
-      document.getElementById('accuracyText').innerText = `ความแม่นยำ: ${accuracy}%`;
-
-      const isNewRecord = saveHighScore(score);
-      document.getElementById('bestScoreResult').innerText = highScore;
-
-      const recordBadge = document.getElementById('newRecordBadge');
-      if (isNewRecord && score > 0) {
-        recordBadge.style.display = 'inline-block';
-      } else {
-        recordBadge.style.display = 'none';
-      }
-
-      if (accuracy >= 70 || isNewRecord) {
-        confetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
-      }
-    }
-
-    // กด Enter ในช่องพิมพ์เพื่อส่งคำตอบ
-    document.getElementById('typingInput').addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') {
-        checkTypingAnswer();
-      }
-    });
-
-    startQuiz();
-  </script>
+        window.onload = initQuiz;
+    </script>
 </body>
 </html>

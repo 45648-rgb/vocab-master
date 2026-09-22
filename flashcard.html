@@ -1,536 +1,852 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flashcards - เรียนรู้คำศัพท์ 300 คำ</title>
-  <style>
-    body {
-      font-family: 'Sukhumvit Set', 'Kanit', sans-serif;
-      background-color: #f8f9fa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Flashcard App (550 Words with Audio & Search)</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+        }
 
-    .container {
-      text-align: center;
-      width: 100%;
-      max-width: 420px;
-      background: white;
-      padding: 24px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    .header-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 15px;
-    }
+        h1 {
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            text-align: center;
+        }
 
-    .btn-back-home {
-      text-decoration: none;
-      color: #4f46e5;
-      font-weight: bold;
-      font-size: 0.95rem;
-    }
+        .subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
 
-    .search-box {
-      margin-bottom: 15px;
-    }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+        }
 
-    .search-box input {
-      width: 100%;
-      padding: 10px 14px;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      outline: none;
-      box-sizing: border-box;
-    }
+        select, input[type="text"], button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: white;
+            outline: none;
+            box-sizing: border-box;
+        }
 
-    .search-box input:focus {
-      border-color: #4f46e5;
-    }
+        select, input[type="text"] {
+            flex: 1;
+        }
 
-    .card-counter {
-      font-size: 0.9rem;
-      color: #64748b;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
 
-    .card-container {
-      perspective: 1000px;
-      width: 100%;
-      height: 220px;
-      margin-bottom: 15px;
-      cursor: pointer;
-    }
+        button:hover {
+            background-color: #4338ca;
+        }
 
-    .card {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s;
-      border-radius: 16px;
-    }
+        .flashcard-container {
+            perspective: 1000px;
+            width: 340px;
+            height: 250px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
 
-    .card.flipped {
-      transform: rotateY(180deg);
-    }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
 
-    .card-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      padding: 20px;
-      box-sizing: border-box;
-      border: 1px solid #e2e8f0;
-    }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
 
-    .card-front { background: #ffffff; }
-    .card-back {
-      transform: rotateY(180deg);
-      background-color: #eef2ff;
-      border-color: #c7d2fe;
-    }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
 
-    .vocab { font-size: 2rem; font-weight: bold; color: #1e293b; }
-    .meaning { font-size: 1.3rem; color: #334155; }
-    .hint { font-size: 0.8rem; color: #94a3b8; margin-top: 8px; }
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: #e0e7ff;
+            color: #312e81;
+        }
 
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
+        .word-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
 
-    button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 10px;
-      background-color: #4f46e5;
-      color: white;
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-    }
+        .word {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
 
-    button:hover { background-color: #4338ca; }
-    button:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+        .card-back .word {
+            color: #312e81;
+        }
 
-    .btn-sound { background-color: #10b981; }
-    .btn-sound:hover { background-color: #059669; }
-    .btn-nav { background-color: #f1f5f9; color: #334155; }
-    .btn-nav:hover { background-color: #e2e8f0; }
-  </style>
+        .audio-btn {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.2s;
+            color: var(--primary-color);
+        }
+
+        .audio-btn:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .pos {
+            font-style: italic;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .translation {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .example {
+            font-size: 0.95rem;
+            color: #4b5563;
+        }
+
+        .category-tag {
+            font-size: 0.8rem;
+            background: #e5e7eb;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-top: 10px;
+            color: #374151;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        #counter {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="header-nav">
-      <a href="index.html" class="btn-back-home">🏠 หน้าหลัก</a>
-      <h2 style="margin:0; font-size:1.3rem;">⚡ Flashcards</h2>
-      <span></span>
+    <h1>English Flashcards</h1>
+    <div class="subtitle" id="totalSubtitle">คลังคำศัพท์สะสมรวมทั้งหมด 550 คำ</div>
+    
+    <div class="controls">
+        <select id="categoryFilter" onchange="filterVocabulary()">
+            <option value="All">ทุกหมวดหมู่ (All Categories)</option>
+            <option value="Daily Life">Daily Life</option>
+            <option value="Food & Drink">Food & Drink</option>
+            <option value="Travel & Places">Travel & Places</option>
+            <option value="Technology & Science">Technology & Science</option>
+            <option value="Sports & Hobbies">Sports & Hobbies</option>
+            <option value="Business & Work">Business & Work</option>
+            <option value="Emotions & Personality">Emotions & Personality</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="ค้นหาคำศัพท์หรือคำแปล..." oninput="filterVocabulary()">
     </div>
 
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="🔍 ค้นหาคำศัพท์ หรือ คำแปล..." oninput="filterCards()">
-    </div>
-
-    <div class="card-counter" id="cardCounter">คำที่ 1 / 300</div>
-
-    <div class="card-container" onclick="flipCard()">
-      <div class="card" id="flashcard">
-        <div class="card-face card-front">
-          <div class="vocab" id="vocabText">Ability</div>
-          <div class="hint">(แตะแผ่นการ์ดเพื่อดูคำแปล)</div>
+    <div class="flashcard-container" onclick="flipCard()">
+        <div class="flashcard" id="card">
+            <div class="card-face card-front">
+                <div class="pos" id="cardPos">pos</div>
+                <div class="word-container">
+                    <div class="word" id="cardWord">Word</div>
+                    <button class="audio-btn" onclick="playAudio(event)" title="ฟังเสียงอ่าน">🔊</button>
+                </div>
+                <div class="category-tag" id="cardCategory">Category</div>
+                <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 10px;">(คลิกการ์ดเพื่อดูคำแปล)</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="translation" id="cardTranslation">คำแปล</div>
+                <div class="example" id="cardExample">Example sentence.</div>
+            </div>
         </div>
-        <div class="card-face card-back">
-          <div class="meaning" id="meaningText">ความสามารถ</div>
-        </div>
-      </div>
     </div>
 
-    <div class="btn-group">
-      <button class="btn-nav" id="prevBtn" onclick="prevCard()">⬅️ ย้อนกลับ</button>
-      <button class="btn-sound" onclick="speakVocab(event)">🔊 อ่านเสียง</button>
-      <button class="btn-nav" id="nextBtn" onclick="nextCard()">ถัดไป ➔</button>
+    <div class="navigation">
+        <button onclick="prevCard()">&#10094; ก่อนหน้า</button>
+        <span id="counter">1 / 1</span>
+        <button onclick="nextCard()">ถัดไป &#10095;</button>
     </div>
-  </div>
 
-  <script>
-    // ชุดข้อมูลคำศัพท์ปรับให้เหลือ 300 คำแบบไม่ซ้ำ
-    const rawFlashcards = [
-      { vocab: "Ability", meaning: "ความสามารถ" }, { vocab: "Abroad", meaning: "ต่างประเทศ" },
-      { vocab: "Absence", meaning: "การไม่อยู่, การลาหยุด" }, { vocab: "Absolute", meaning: "สมบูรณ์, แน่นอน" },
-      { vocab: "Absorb", meaning: "ดูดซับ" }, { vocab: "Academic", meaning: "เกี่ยวกับการศึกษา" },
-      { vocab: "Accept", meaning: "ยอมรับ" }, { vocab: "Access", meaning: "ทางเข้า, สิทธิ์เข้าถึง" },
-      { vocab: "Accident", meaning: "อุบัติเหตุ" }, { vocab: "Accompany", meaning: "ร่วมเดินทาง" },
-      { vocab: "Accomplish", meaning: "ทำสำเร็จ" }, { vocab: "Account", meaning: "บัญชี, การอธิบาย" },
-      { vocab: "Accurate", meaning: "ถูกต้องแม่นยำ" }, { vocab: "Achieve", meaning: "บรรลุเป้าหมาย" },
-      { vocab: "Acknowledge", meaning: "รับรู้, ยอมรับ" }, { vocab: "Acquire", meaning: "ได้รับมา" },
-      { vocab: "Active", meaning: "คล่องแคล่ว" }, { vocab: "Adapt", meaning: "ปรับตัว" },
-      { vocab: "Addiction", meaning: "การเสพติด" }, { vocab: "Address", meaning: "ที่อยู่, รับมือแก้ไข" },
-      { vocab: "Adequate", meaning: "เพียงพอ" }, { vocab: "Adjust", meaning: "ปรับเปลี่ยน" },
-      { vocab: "Admire", meaning: "ชื่นชม" }, { vocab: "Admit", meaning: "ยอมรับความจริง" },
-      { vocab: "Adopt", meaning: "รับเลี้ยง, นำมาใช้" }, { vocab: "Advance", meaning: "ก้าวหน้า" },
-      { vocab: "Advantage", meaning: "ข้อดี, ประโยชน์" }, { vocab: "Adventure", meaning: "การผจญภัย" },
-      { vocab: "Advice", meaning: "คำแนะนำ" }, { vocab: "Advocate", meaning: "ผู้สนับสนุน, สนับสนุน" },
-      { vocab: "Affect", meaning: "ส่งผลกระทบ" }, { vocab: "Afford", meaning: "จ่ายไหว, มีกำลังซื้อ" },
-      { vocab: "Aggressive", meaning: "ก้าวร้าว" }, { vocab: "Agree", meaning: "เห็นด้วย" },
-      { vocab: "Alert", meaning: "ตื่นตัว, เตือนภัย" }, { vocab: "Allocate", meaning: "จัดสรร" },
-      { vocab: "Allow", meaning: "อนุญาต" }, { vocab: "Alternative", meaning: "ทางเลือก" },
-      { vocab: "Ambitious", meaning: "ทะเยอทะยาน" }, { vocab: "Analyze", meaning: "วิเคราะห์" },
-      { vocab: "Ancient", meaning: "โบราณ" }, { vocab: "Annual", meaning: "ประจำปี" },
-      { vocab: "Anxiety", meaning: "ความวิตกกังวล" }, { vocab: "Apologize", meaning: "ขอโทษ" },
-      { vocab: "Apparent", meaning: "ชัดเจน" }, { vocab: "Appeal", meaning: "ดึงดูดใจ, อุทธรณ์" },
-      { vocab: "Appear", meaning: "ปรากฏตัว" }, { vocab: "Appreciate", meaning: "ซาบซึ้ง, เห็นคุณค่า" },
-      { vocab: "Approach", meaning: "เข้าใกล้, วิธีการ" }, { vocab: "Appropriate", meaning: "เหมาะสม" },
-      { vocab: "Approve", meaning: "อนุมัติ" }, { vocab: "Arrive", meaning: "มาถึง" },
-      { vocab: "Article", meaning: "บทความ" }, { vocab: "Artificial", meaning: "เทียม, สังเคราะห์" },
-      { vocab: "Aspect", meaning: "แง่มุม" }, { vocab: "Aspire", meaning: "ทะเยอทะยาน" },
-      { vocab: "Assemble", meaning: "ประกอบ, รวมตัว" }, { vocab: "Assert", meaning: "ยืนยัน" },
-      { vocab: "Assess", meaning: "ประเมินผล" }, { vocab: "Asset", meaning: "ทรัพย์สิน" },
-      { vocab: "Assign", meaning: "มอบหมาย" }, { vocab: "Assist", meaning: "ช่วยเหลือ" },
-      { vocab: "Associate", meaning: "เชื่อมโยง, พนักงาน" }, { vocab: "Assume", meaning: "สันนิษฐาน" },
-      { vocab: "Assure", meaning: "ให้ความมั่นใจ" }, { vocab: "Astonish", meaning: "ทำให้ประหลาดใจ" },
-      { vocab: "Attach", meaning: "แนบ, ติด" }, { vocab: "Attain", meaning: "บรรลุ, ได้รับ" },
-      { vocab: "Attempt", meaning: "พยายาม" }, { vocab: "Attract", meaning: "ดึงดูด" },
-      { vocab: "Audience", meaning: "ผู้ชม, ผู้ฟัง" }, { vocab: "Authentic", meaning: "แท้จริง, ดั้งเดิม" },
-      { vocab: "Authority", meaning: "ผู้มีอำนาจ" }, { vocab: "Automatic", meaning: "อัตโนมัติ" },
-      { vocab: "Available", meaning: "มีอยู่, ว่างพร้อมใช้" }, { vocab: "Average", meaning: "ค่าเฉลี่ย" },
-      { vocab: "Avoid", meaning: "หลีกเลี่ยง" }, { vocab: "Aware", meaning: "รับรู้, ตระหนัก" },
-      { vocab: "Awesome", meaning: "ยอดเยี่ยม" }, { vocab: "Background", meaning: "ภูมิหลัง, ฉากหลัง" },
-      { vocab: "Balance", meaning: "สมดุล" }, { vocab: "Barrier", meaning: "อุปสรรค, สิ่งกีดขวาง" },
-      { vocab: "Behavior", meaning: "พฤติกรรม" }, { vocab: "Belief", meaning: "ความเชื่อ" },
-      { vocab: "Benefit", meaning: "ผลประโยชน์" }, { vocab: "Betray", meaning: "ทรยศ" },
-      { vocab: "Bonus", meaning: "เงินพิเศษ" }, { vocab: "Boost", meaning: "ส่งเสริม, เพิ่ม" },
-      { vocab: "Brave", meaning: "กล้าหาญ" }, { vocab: "Brilliant", meaning: "ฉลาดปราดเปรื่อง" },
-      { vocab: "Broad", meaning: "กว้างขวาง" }, { vocab: "Budget", meaning: "งบประมาณ" },
-      { vocab: "Calculate", meaning: "คำนวณ" }, { vocab: "Calm", meaning: "สงบ" },
-      { vocab: "Cancel", meaning: "ยกเลิก" }, { vocab: "Candidate", meaning: "ผู้สมัคร" },
-      { vocab: "Capacity", meaning: "ความจุ, ความสามารถ" }, { vocab: "Captivate", meaning: "ตรึงใจ, ดึงดูด" },
-      { vocab: "Career", meaning: "อาชีพ" }, { vocab: "Category", meaning: "ประเภท" },
-      { vocab: "Caution", meaning: "ความระมัดระวัง" }, { vocab: "Celebrate", meaning: "เฉลิมฉลอง" },
-      { vocab: "Certain", meaning: "แน่นอน" }, { vocab: "Challenge", meaning: "การท้าทาย" },
-      { vocab: "Champion", meaning: "ผู้ชนะเลิศ" }, { vocab: "Character", meaning: "บุคลิกลักษณะ" },
-      { vocab: "Clarify", meaning: "อธิบายให้ชัดเจน" }, { vocab: "Collaborate", meaning: "ร่วมมือกัน" },
-      { vocab: "Collect", meaning: "สะสม, รวบรวม" }, { vocab: "Combine", meaning: "รวมกัน" },
-      { vocab: "Comfort", meaning: "ความสบาย" }, { vocab: "Commitment", meaning: "ความมุ่งมั่น" },
-      { vocab: "Common", meaning: "ธรรมดา, ทั่วไป" }, { vocab: "Communicate", meaning: "สื่อสาร" },
-      { vocab: "Community", meaning: "ชุมชน" }, { vocab: "Company", meaning: "บริษัท" },
-      { vocab: "Compare", meaning: "เปรียบเทียบ" }, { vocab: "Compassion", meaning: "ความเห็นใจ" },
-      { vocab: "Compete", meaning: "แข่งขัน" }, { vocab: "Complain", meaning: "บ่น, ร้องเรียน" },
-      { vocab: "Complete", meaning: "สมบูรณ์, ทำเสร็จ" }, { vocab: "Complex", meaning: "ซับซ้อน" },
-      { vocab: "Complicate", meaning: "ทำให้ซับซ้อน" }, { vocab: "Comply", meaning: "ปฏิบัติตาม" },
-      { vocab: "Component", meaning: "ชิ้นส่วน, ส่วนประกอบ" }, { vocab: "Concentrate", meaning: "มีสมาธิ" },
-      { vocab: "Concept", meaning: "แนวคิด" }, { vocab: "Concern", meaning: "ความกังวล" },
-      { vocab: "Conclude", meaning: "สรุป" }, { vocab: "Condition", meaning: "เงื่อนไข, สภาพ" },
-      { vocab: "Conduct", meaning: "จัดการ, ความประพฤติ" }, { vocab: "Confidence", meaning: "ความมั่นใจ" },
-      { vocab: "Confirm", meaning: "ยืนยัน" }, { vocab: "Conflict", meaning: "ความขัดแย้ง" },
-      { vocab: "Confusion", meaning: "ความสับสน" }, { vocab: "Connect", meaning: "เชื่อมต่อ" },
-      { vocab: "Conscious", meaning: "มีสติ, รู้ตัว" }, { vocab: "Consensus", meaning: "ความเห็นพ้อง" },
-      { vocab: "Consequence", meaning: "ผลที่ตามมา" }, { vocab: "Consider", meaning: "พิจารณา" },
-      { vocab: "Consistently", meaning: "อย่างสม่ำเสมอ" }, { vocab: "Constant", meaning: "คงที่, ต่อเนื่อง" },
-      { vocab: "Construct", meaning: "สร้าง" }, { vocab: "Consult", meaning: "ปรึกษา" },
-      { vocab: "Consume", meaning: "บริโภค" }, { vocab: "Contact", meaning: "ติดต่อ" },
-      { vocab: "Contain", meaning: "บรรจุไว้" }, { vocab: "Content", meaning: "เนื้อหา, พึงพอใจ" },
-      { vocab: "Context", meaning: "บริบท" }, { vocab: "Continue", meaning: "ทําต่อไป" },
-      { vocab: "Contract", meaning: "สัญญา" }, { vocab: "Contribute", meaning: "สนับสนุน" },
-      { vocab: "Control", meaning: "ควบคุม" }, { vocab: "Convenient", meaning: "สะดวกสบาย" },
-      { vocab: "Convert", meaning: "แปลง, เปลี่ยน" }, { vocab: "Convey", meaning: "สื่อสาร" },
-      { vocab: "Convince", meaning: "โน้มน้าวใจ" }, { vocab: "Cooperate", meaning: "ร่วมมือ" },
-      { vocab: "Cope", meaning: "รับมือ" }, { vocab: "Correct", meaning: "ถูกต้อง" },
-      { vocab: "Cost", meaning: "ต้นทุน" }, { vocab: "Council", meaning: "สภา" },
-      { vocab: "Courage", meaning: "ความกล้าหาญ" }, { vocab: "Create", meaning: "สร้างสรรค์" },
-      { vocab: "Creative", meaning: "มีความคิดสร้างสรรค์" }, { vocab: "Credible", meaning: "น่าเชื่อถือ" },
-      { vocab: "Crisis", meaning: "วิกฤตการณ์" }, { vocab: "Critical", meaning: "วิกฤต, สำคัญยิ่ง" },
-      { vocab: "Crucial", meaning: "สำคัญมาก" }, { vocab: "Cultivate", meaning: "บ่มเพาะ" },
-      { vocab: "Culture", meaning: "วัฒนธรรม" }, { vocab: "Curious", meaning: "อยากรู้อยากเห็น" },
-      { vocab: "Current", meaning: "ปัจจุบัน" }, { vocab: "Customer", meaning: "ลูกค้า" },
-      { vocab: "Damage", meaning: "ความเสียหาย" }, { vocab: "Danger", meaning: "อันตราย" },
-      { vocab: "Data", meaning: "ข้อมูล" }, { vocab: "Decide", meaning: "ตัดสินใจ" },
-      { vocab: "Declare", meaning: "ประกาศ" }, { vocab: "Decline", meaning: "ลดลง, ปฏิเสธ" },
-      { vocab: "Decorate", meaning: "ตกแต่ง" }, { vocab: "Decrease", meaning: "ลดลง" },
-      { vocab: "Dedicated", meaning: "ทุ่มเท" }, { vocab: "Defend", meaning: "ป้องกัน" },
-      { vocab: "Define", meaning: "กำหนด, นิยาม" }, { vocab: "Definite", meaning: "แน่นอน" },
-      { vocab: "Delay", meaning: "ล่าช้า" }, { vocab: "Delicate", meaning: "ละเอียดอ่อน" },
-      { vocab: "Deliver", meaning: "ส่งมอบ" }, { vocab: "Demand", meaning: "ความต้องการ" },
-      { vocab: "Demonstrate", meaning: "สาธิต" }, { vocab: "Deny", meaning: "ปฏิเสธ" },
-      { vocab: "Depend", meaning: "ขึ้นอยู่กับ" }, { vocab: "Deposit", meaning: "ฝากเงิน" },
-      { vocab: "Describe", meaning: "อธิบายลักษณะ" }, { vocab: "Deserve", meaning: "สมควรได้รับ" },
-      { vocab: "Design", meaning: "ออกแบบ" }, { vocab: "Desire", meaning: "ความปรารถนา" },
-      { vocab: "Desperate", meaning: "สิ้นหวัง" }, { vocab: "Destroy", meaning: "ทำลาย" },
-      { vocab: "Detail", meaning: "รายละเอียด" }, { vocab: "Detect", meaning: "ตรวจพบ" },
-      { vocab: "Determine", meaning: "ตัดสินใจแน่วแน่" }, { vocab: "Develop", meaning: "พัฒนา" },
-      { vocab: "Device", meaning: "อุปกรณ์" }, { vocab: "Devote", meaning: "อุทิศตน" },
-      { vocab: "Diagnose", meaning: "วินิจฉัย" }, { vocab: "Different", meaning: "แตกต่าง" },
-      { vocab: "Difficult", meaning: "ยากลำบาก" }, { vocab: "Digital", meaning: "ดิจิทัล" },
-      { vocab: "Dignity", meaning: "ศักดิ์ศรี" }, { vocab: "Diligence", meaning: "ความขยันเพียร" },
-      { vocab: "Dimension", meaning: "มิติ, ขนาด" }, { vocab: "Direct", meaning: "โดยตรง" },
-      { vocab: "Disappear", meaning: "หายสาบสูญ" }, { vocab: "Disaster", meaning: "ภัยพิบัติ" },
-      { vocab: "Discipline", meaning: "วินัย" }, { vocab: "Discover", meaning: "ค้นพบ" },
-      { vocab: "Discuss", meaning: "พูดคุยถกเถียง" }, { vocab: "Disease", meaning: "โรคภัย" },
-      { vocab: "Dismiss", meaning: "ไล่ออก, ยกเลิก" }, { vocab: "Display", meaning: "แสดงผล" },
-      { vocab: "Dispute", meaning: "ข้อโต้แย้ง" }, { vocab: "Distance", meaning: "ระยะทาง" },
-      { vocab: "Distinct", meaning: "แตกต่างชัดเจน" }, { vocab: "Distribute", meaning: "แจกจ่าย" },
-      { vocab: "Diverse", meaning: "หลากหลาย" }, { vocab: "Divide", meaning: "แบ่งปัน" },
-      { vocab: "Document", meaning: "เอกสาร" }, { vocab: "Domain", meaning: "ขอบเขต" },
-      { vocab: "Dominant", meaning: "โดดเด่น" }, { vocab: "Donate", meaning: "บริจาค" },
-      { vocab: "Doubt", meaning: "สงสัย" }, { vocab: "Dramatic", meaning: "ตื่นเต้นตระการตา" },
-      { vocab: "Durable", meaning: "ทนทาน" }, { vocab: "Dynamic", meaning: "คล่องตัว" },
-      { vocab: "Eager", meaning: "กระตือรือร้น" }, { vocab: "Earn", meaning: "ได้รับรายได้" },
-      { vocab: "Economy", meaning: "เศรษฐกิจ" }, { vocab: "Educate", meaning: "ให้การศึกษา" },
-      { vocab: "Effect", meaning: "ผลลัพธ์" }, { vocab: "Effective", meaning: "มีประสิทธิภาพ" },
-      { vocab: "Efficiency", meaning: "สมรรถภาพ" }, { vocab: "Effort", meaning: "ความพยายาม" },
-      { vocab: "Elaborate", meaning: "ละเอียดยิบย่อย" }, { vocab: "Elect", meaning: "คัดเลือก" },
-      { vocab: "Elegant", meaning: "สง่างาม" }, { vocab: "Element", meaning: "องค์ประกอบ" },
-      { vocab: "Eliminate", meaning: "กำจัดออก" }, { vocab: "Embrace", meaning: "อ้าแขนรับ" },
-      { vocab: "Emerge", meaning: "ปรากฏขึ้น" }, { vocab: "Empathy", meaning: "ความเข้าใจความรู้สึก" },
-      { vocab: "Emphasis", meaning: "การเน้นย้ำ" }, { vocab: "Employee", meaning: "พนักงาน" },
-      { vocab: "Empower", meaning: "ให้権อำนาจ" }, { vocab: "Enable", meaning: "ทำให้สามารถ" },
-      { vocab: "Encounter", meaning: "เผชิญหน้า" }, { vocab: "Encourage", meaning: "ให้กำลังใจ" },
-      { vocab: "Endeavor", meaning: "ความพยายาม" }, { vocab: "Endure", meaning: "อดทน" },
-      { vocab: "Energy", meaning: "พลังงาน" }, { vocab: "Enforce", meaning: "บังคับใช้" },
-      { vocab: "Engage", meaning: "มีส่วนร่วม" }, { vocab: "Enhance", meaning: "ปรับปรุงเพิ่มพูน" },
-      { vocab: "Enormous", meaning: "ใหญ่โตมโหฬาร" }, { vocab: "Ensure", meaning: "รับรอง" },
-      { vocab: "Enthusiasm", meaning: "ความกระตือรือร้น" }, { vocab: "Entire", meaning: "ทั้งหมด" },
-      { vocab: "Environment", meaning: "สิ่งแวดล้อม" }, { vocab: "Equip", meaning: "ติดตั้งอุปกรณ์" },
-      { vocab: "Essential", meaning: "จำเป็นอย่างยิ่ง" }, { vocab: "Establish", meaning: "ก่อตั้ง" },
-      { vocab: "Estimate", meaning: "ประมาณการ" }, { vocab: "Evaluate", meaning: "ประเมินค่า" },
-      { vocab: "Evidence", meaning: "หลักฐาน" }, { vocab: "Examine", meaning: "ตรวจค้น" },
-      { vocab: "Exceed", meaning: "เกินขีดจำกัด" }, { vocab: "Excel", meaning: "เก่งโดดเด่น" },
-      { vocab: "Exchange", meaning: "แลกเปลี่ยน" }, { vocab: "Expand", meaning: "ขยายตัว" },
-      { vocab: "Expect", meaning: "คาดหวัง" }, { vocab: "Experience", meaning: "ประสบการณ์" },
-      { vocab: "Explore", meaning: "สำรวจ" }, { vocab: "Extend", meaning: "ยืดขยายเวลา" },
-      { vocab: "Extraordinary", meaning: "พิเศษ" }, { vocab: "Facilitate", meaning: "อำนวยความสะดวก" },
-      { vocab: "Factor", meaning: "ปัจจัย" }, { vocab: "Failure", meaning: "ความล้มเหลว" },
-      { vocab: "Fascinating", meaning: "น่าหลงใหล" }, { vocab: "Feature", meaning: "คุณสมบัติ" },
-      { vocab: "Flexible", meaning: "ยืดหยุ่น" }, { vocab: "Focus", meaning: "โฟกัส" },
-      { vocab: "Foundation", meaning: "รากฐาน" }, { vocab: "Freedom", meaning: "อิสรภาพ" },
-      { vocab: "Generate", meaning: "สร้างขึ้น" }, { vocab: "Generous", meaning: "ใจกว้าง" },
-      { vocab: "Genuine", meaning: "แท้จริง" }, { vocab: "Goal", meaning: "เป้าหมาย" },
-      { vocab: "Gratitude", meaning: "ความรู้สึกขอบคุณ" }, { vocab: "Guarantee", meaning: "การรับประกัน" },
-      { vocab: "Harmony", meaning: "ความกลมเกลียว" }, { vocab: "Highlight", meaning: "เน้นย้ำ" },
-      { vocab: "Honest", meaning: "ซื่อสัตย์" }, { vocab: "Hospitality", meaning: "การต้อนรับดี" },
-      { vocab: "Identify", meaning: "ระบุตัวตน" }, { vocab: "Ignore", meaning: "เพิกเฉย" },
-      { vocab: "Impact", meaning: "ผลกระทบ" }, { vocab: "Implement", meaning: "นำไปปฏิบัติ" },
-      { vocab: "Importance", meaning: "ความสำคัญ" }, { vocab: "Improve", meaning: "ปรับปรุงดีขึ้น" },
-      { vocab: "Include", meaning: "รวมถึง" }, { vocab: "Increase", meaning: "เพิ่มขึ้น" },
-      { vocab: "Independent", meaning: "อิสระ" }, { vocab: "Indicate", meaning: "บ่งบอก" },
-      { vocab: "Individual", meaning: "แต่ละบุคคล" }, { vocab: "Industry", meaning: "อุตสาหกรรม" },
-      { vocab: "Influence", meaning: "มีอิทธิพลต่อ" }, { vocab: "Inform", meaning: "แจ้งข้อมูล" },
-      { vocab: "Initial", meaning: "ขั้นแรกเริ่ม" }, { vocab: "Initiative", meaning: "ความคิดริเริ่ม" },
-      { vocab: "Innovate", meaning: "สร้างนวัตกรรม" }, { vocab: "Insight", meaning: "มุมมองลึกซึ้ง" },
-      { vocab: "Inspiration", meaning: "แรงบันดาลใจ" }, { vocab: "Install", meaning: "ติดตั้ง" },
-      { vocab: "Integrity", meaning: "ความซื่อสัตย์สุจริต" }, { vocab: "Intelligent", meaning: "ฉลาดหลักแหลม" },
-      { vocab: "Intend", meaning: "ตั้งใจ" }, { vocab: "Interaction", meaning: "การปฏิสัมพันธ์" },
-      { vocab: "Interest", meaning: "ความสนใจ" }, { vocab: "Interpret", meaning: "ตีความ" },
-      { vocab: "Interrupt", meaning: "ขัดจังหวะ" }, { vocab: "Interview", meaning: "สัมภาษณ์" },
-      { vocab: "Introduce", meaning: "แนะนำ" }, { vocab: "Invent", meaning: "ประดิษฐ์" },
-      { vocab: "Invest", meaning: "ลงทุน" }, { vocab: "Investigate", meaning: "สืบสวนสอบสวน" },
-      { vocab: "Invite", meaning: "เชื้อเชิญ" }, { vocab: "Involve", meaning: "เกี่ยวข้อง" },
-      { vocab: "Issue", meaning: "ประเด็นปัญหา" }, { vocab: "Journey", meaning: "การเดินทาง" },
-      { vocab: "Judgment", meaning: "การตัดสิน" }, { vocab: "Justify", meaning: "ให้เหตุผล" },
-      { vocab: "Knowledge", meaning: "ความรู้" }, { vocab: "Leadership", meaning: "ภาวะผู้นำ" },
-      { vocab: "Legend", meaning: "ตำนาน" }, { vocab: "Limit", meaning: "ขีดจำกัด" },
-      { vocab: "Logic", meaning: "ตรรกะ" }, { vocab: "Loyalty", meaning: "ความจงรักภักดี" },
-      { vocab: "Maintain", meaning: "รักษาไว้" }, { vocab: "Manage", meaning: "จัดการ" },
-      { vocab: "Market", meaning: "ตลาด" }, { vocab: "Measure", meaning: "วัดขนาด" },
-      { vocab: "Mechanism", meaning: "กลไก" }, { vocab: "Mention", meaning: "กล่าวถึง" },
-      { vocab: "Method", meaning: "วิธีการ" }, { vocab: "Mindset", meaning: "กรอบความคิด" },
-      { vocab: "Mission", meaning: "ภารกิจ" }, { vocab: "Modify", meaning: "ปรับเปลี่ยน" },
-      { vocab: "Motivation", meaning: "แรงจูงใจ" }, { vocab: "Navigate", meaning: "นำทาง" },
-      { vocab: "Necessary", meaning: "จำเป็น" }, { vocab: "Negotiate", meaning: "เจรจาต่อรอง" },
-      { vocab: "Network", meaning: "เครือข่าย" }, { vocab: "Objective", meaning: "วัตถุประสงค์" },
-      { vocab: "Observe", meaning: "สังเกตการณ์" }, { vocab: "Obtain", meaning: "ได้รับ" },
-      { vocab: "Opportunity", meaning: "โอกาส" }, { vocab: "Optimize", meaning: "ปรับให้ดีที่สุด" },
-      { vocab: "Option", meaning: "ตัวเลือก" }, { vocab: "Organize", meaning: "จัดระเบียบ" },
-      { vocab: "Outcome", meaning: "ผลลัพธ์" }, { vocab: "Participate", meaning: "มีส่วนร่วม" },
-      { vocab: "Patient", meaning: "อดทน" }, { vocab: "Perform", meaning: "ปฏิบัติงาน" },
-      { vocab: "Perspective", meaning: "มุมมองความคิด" }, { vocab: "Persuade", meaning: "ชักชวน" },
-      { vocab: "Plan", meaning: "วางแผน" }, { vocab: "Positive", meaning: "เชิงบวก" },
-      { vocab: "Potential", meaning: "ศักยภาพ" }, { vocab: "Practical", meaning: "นำไปใช้ได้จริง" },
-      { vocab: "Predict", meaning: "ทำนาย" }, { vocab: "Prefer", meaning: "ชอบมากกว่า" },
-      { vocab: "Prepare", meaning: "ตระเตรียม" }, { vocab: "Presence", meaning: "การปรากฏตัว" },
-      { vocab: "Preserve", meaning: "สงวนรักษา" }, { vocab: "Prevent", meaning: "ป้องกัน" },
-      { vocab: "Priority", meaning: "ลำดับความสำคัญ" }, { vocab: "Problem", meaning: "ปัญหา" },
-      { vocab: "Process", meaning: "กระบวนการ" }, { vocab: "Produce", meaning: "ผลิต" },
-      { vocab: "Profession", meaning: "อาชีพเฉพาะทาง" }, { vocab: "Progress", meaning: "ความคืบหน้า" },
-      { vocab: "Project", meaning: "โครงการ" }, { vocab: "Promote", meaning: "ส่งเสริม" },
-      { vocab: "Proof", meaning: "หลักฐานพิสูจน์" }, { vocab: "Protect", meaning: "ปกป้อง" },
-      { vocab: "Provide", meaning: "จัดหาให้" }, { vocab: "Purpose", meaning: "วัตถุประสงค์" },
-      { vocab: "Quality", meaning: "คุณภาพ" }, { vocab: "React", meaning: "ตอบสนอง" },
-      { vocab: "Realize", meaning: "ตระหนักรู้" }, { vocab: "Reason", meaning: "เหตุผล" },
-      { vocab: "Receive", meaning: "ได้รับ" }, { vocab: "Recognize", meaning: "จดจำได้" },
-      { vocab: "Recommend", meaning: "แนะนำ" }, { vocab: "Reduce", meaning: "ลดจำนวน" },
-      { vocab: "Reflect", meaning: "สะท้อน" }, { vocab: "Regard", meaning: "คำนึงถึง" },
-      { vocab: "Region", meaning: "ภูมิภาค" }, { vocab: "Register", meaning: "ลงทะเบียน" },
-      { vocab: "Regulate", meaning: "ควบคุม" }, { vocab: "Reinforce", meaning: "เสริมความแข็งแกร่ง" },
-      { vocab: "Reject", meaning: "ปฏิเสธ" }, { vocab: "Relation", meaning: "ความสัมพันธ์" },
-      { vocab: "Relax", meaning: "ผ่อนคลาย" }, { vocab: "Release", meaning: "ปลดปล่อย" },
-      { vocab: "Relevant", meaning: "เกี่ยวข้องกัน" }, { vocab: "Reliable", meaning: "เชื่อถือได้" },
-      { vocab: "Relief", meaning: "ความสบายใจ" }, { vocab: "Rely", meaning: "พึ่งพา" },
-      { vocab: "Remain", meaning: "ยังคงเหลืออยู่" }, { vocab: "Remarkable", meaning: "โดดเด่น" },
-      { vocab: "Remember", meaning: "จดจำ" }, { vocab: "Remind", meaning: "เตือนความจำ" },
-      { vocab: "Remove", meaning: "เอาออก" }, { vocab: "Renew", meaning: "ต่ออายุ" },
-      { vocab: "Repair", meaning: "ซ่อมแซม" }, { vocab: "Repeat", meaning: "ทำซ้ำ" },
-      { vocab: "Replace", meaning: "แทนที่" }, { vocab: "Reply", meaning: "ตอบกลับ" },
-      { vocab: "Report", meaning: "รายงาน" }, { vocab: "Represent", meaning: "เป็นตัวแทน" },
-      { vocab: "Require", meaning: "ต้องการ" }, { vocab: "Research", meaning: "วิจัย" },
-      { vocab: "Reserve", meaning: "สำรองไว้" }, { vocab: "Resilient", meaning: "ยืดหยุ่นฟื้นตัวไว" },
-      { vocab: "Resource", meaning: "ทรัพยากร" }, { vocab: "Respect", meaning: "เคารพ" },
-      { vocab: "Respond", meaning: "ตอบสนอง" }, { vocab: "Responsibility", meaning: "ความรับผิดชอบ" },
-      { vocab: "Restore", meaning: "ฟื้นฟูสภาพ" }, { vocab: "Result", meaning: "ผลลัพธ์" },
-      { vocab: "Retain", meaning: "เก็บรักษาไว้" }, { vocab: "Reveal", meaning: "เปิดเผย" },
-      { vocab: "Revenue", meaning: "รายได้" }, { vocab: "Review", meaning: "ทบทวน" },
-      { vocab: "Reward", meaning: "รางวัล" }, { vocab: "Risk", meaning: "ความเสี่ยง" },
-      { vocab: "Role", meaning: "บทบาท" }, { vocab: "Safety", meaning: "ความปลอดภัย" },
-      { vocab: "Satisfy", meaning: "ทำให้พึงพอใจ" }, { vocab: "Schedule", meaning: "ตารางเวลา" },
-      { vocab: "Scientific", meaning: "ทางวิทยาศาสตร์" }, { vocab: "Search", meaning: "ค้นหา" },
-      { vocab: "Section", meaning: "ส่วน, แผนก" }, { vocab: "Secure", meaning: "ปลอดภัย" },
-      { vocab: "Select", meaning: "เลือก" }, { vocab: "Sense", meaning: "ประสาทสัมผัส" },
-      { vocab: "Separate", meaning: "แยกออกจากกัน" }, { vocab: "Sequence", meaning: "ลำดับขั้นตอน" },
-      { vocab: "Serious", meaning: "จริงจัง" }, { vocab: "Service", meaning: "บริการ" },
-      { vocab: "Setback", meaning: "อุปสรรคชั่วคราว" }, { vocab: "Settle", meaning: "จัดการตกลง" },
-      { vocab: "Share", meaning: "แบ่งปัน" }, { vocab: "Shift", meaning: "สับเปลี่ยน" },
-      { vocab: "Signal", meaning: "สัญญาณ" }, { vocab: "Significant", meaning: "สำคัญมีนัยสำคัญ" },
-      { vocab: "Similar", meaning: "คล้ายคลึง" }, { vocab: "Simple", meaning: "ง่ายดาย" },
-      { vocab: "Sincere", meaning: "จริงใจ" }, { vocab: "Situation", meaning: "สถานการณ์" },
-      { vocab: "Skill", meaning: "ทักษะ" }, { vocab: "Solution", meaning: "ทางแก้ไขปัญหา" },
-      { vocab: "Solve", meaning: "แก้ไข" }, { vocab: "Source", meaning: "แหล่งที่มา" },
-      { vocab: "Specific", meaning: "เจาะจง" }, { vocab: "Stability", meaning: "ความเสถียร" },
-      { vocab: "Standard", meaning: "มาตรฐาน" }, { vocab: "Strategy", meaning: "กลยุทธ์" },
-      { vocab: "Strength", meaning: "จุดแข็ง" }, { vocab: "Structure", meaning: "โครงสร้าง" },
-      { vocab: "Success", meaning: "ความสำเร็จ" }, { vocab: "Succeed", meaning: "ประสบความสำเร็จ" },
-      { vocab: "Sufficient", meaning: "เพียงพอ" }, { vocab: "Suggest", meaning: "เสนอแนะ" },
-      { vocab: "Suitable", meaning: "เหมาะสม" }, { vocab: "Summary", meaning: "สรุปความ" },
-      { vocab: "Support", meaning: "สนับสนุน" }, { vocab: "Surprise", meaning: "ประหลาดใจ" },
-      { vocab: "Survive", meaning: "อยู่รอด" }, { vocab: "Sustainable", meaning: "ยั่งยืน" },
-      { vocab: "System", meaning: "ระบบ" }, { vocab: "Target", meaning: "เป้าหมาย" },
-      { vocab: "Task", meaning: "ภารกิจหน้าที่" }, { vocab: "Teamwork", meaning: "การทำงานเป็นทีม" },
-      { vocab: "Technology", meaning: "เทคโนโลยี" }, { vocab: "Temporary", meaning: "ชั่วคราว" },
-      { vocab: "Tendency", meaning: "แนวโน้ม" }, { vocab: "Theory", meaning: "ทฤษฎี" },
-      { vocab: "Thought", meaning: "ความคิด" }, { vocab: "Threat", meaning: "ภัยคุกคาม" },
-      { vocab: "Thrive", meaning: "เจริญเติบโต" }, { vocab: "Time", meaning: "เวลา" },
-      { vocab: "Tolerance", meaning: "ความอดกลั้น" }, { vocab: "Topic", meaning: "หัวข้อ" },
-      { vocab: "Tradition", meaning: "ประเพณี" }, { vocab: "Transfer", meaning: "โอนย้าย" },
-      { vocab: "Transform", meaning: "เปลี่ยนแปลงรูป" }, { vocab: "Trend", meaning: "แนวโน้มกระแส" },
-      { vocab: "Trust", meaning: "ความไว้วางใจ" }, { vocab: "Ultimate", meaning: "ที่สุด, ขั้นสูงสุด" },
-      { vocab: "Understand", meaning: "เข้าใจ" }, { vocab: "Unique", meaning: "มีเอกลักษณ์" },
-      { vocab: "Unite", meaning: "รวมกันเป็นหนึ่ง" }, { vocab: "Universal", meaning: "เป็นสากล" },
-      { vocab: "Urgent", meaning: "เร่งด่วน" }, { vocab: "Usage", meaning: "การใช้งาน" },
-      { vocab: "Useful", meaning: "เป็นประโยชน์" }, { vocab: "Valid", meaning: "ถูกต้องสมบูรณ์" },
-      { vocab: "Valuable", meaning: "มีคุณค่า" }, { vocab: "Value", meaning: "มูลค่า" },
-      { vocab: "Variety", meaning: "ความหลากหลาย" }, { vocab: "Vast", meaning: "กว้างใหญ่ไพศาล" },
-      { vocab: "Verify", meaning: "ตรวจสอบ" }, { vocab: "Version", meaning: "เวอร์ชัน" },
-      { vocab: "Victory", meaning: "ชัยชนะ" }, { vocab: "View", meaning: "มุมมอง" },
-      { vocab: "Vision", meaning: "วิสัยทัศน์" }, { vocab: "Vital", meaning: "สำคัญยิ่ง" },
-      { vocab: "Volume", meaning: "ปริมาณ" }, { vocab: "Voluntary", meaning: "ด้วยความสมัครใจ" },
-      { vocab: "Wisdom", meaning: "ภูมิปัญญา" }, { vocab: "Withdraw", meaning: "ถอนตัว" },
-      { vocab: "Yield", meaning: "ยอมตาม, ผลผลิต" }, { vocab: "Zone", meaning: "พื้นที่" }
-    ];
+    <script>
+        const rawVocabularyData = [
+            // --- หมวด 1: Daily Life ---
+            { id: 1, word: "Always", pos: "adv.", translation: "เสมอ", example: "She always wakes up early.", category: "Daily Life" },
+            { id: 2, word: "Answer", pos: "v.", translation: "ตอบ", example: "Please answer the phone.", category: "Daily Life" },
+            { id: 3, word: "Ask", pos: "v.", translation: "ถาม", example: "Can I ask a question?", category: "Daily Life" },
+            { id: 4, word: "Bath", pos: "n.", translation: "การอาบน้ำ", example: "I take a warm bath.", category: "Daily Life" },
+            { id: 5, word: "Begin", pos: "v.", translation: "เริ่มต้น", example: "Class will begin soon.", category: "Daily Life" },
+            { id: 6, word: "Brush", pos: "v.", translation: "แปรง", example: "Brush your teeth daily.", category: "Daily Life" },
+            { id: 7, word: "Buy", pos: "v.", translation: "ซื้อ", example: "I need to buy food.", category: "Daily Life" },
+            { id: 8, word: "Clean", pos: "adj.", translation: "สะอาด", example: "Keep your room clean.", category: "Daily Life" },
+            { id: 9, word: "Cook", pos: "v.", translation: "ทำอาหาร", example: "He loves to cook dinner.", category: "Daily Life" },
+            { id: 10, word: "Dance", pos: "v.", translation: "เต้นรำ", example: "They dance at the party.", category: "Daily Life" },
+            { id: 11, word: "Drink", pos: "v.", translation: "ดื่ม", example: "Drink plenty of water.", category: "Daily Life" },
+            { id: 12, word: "Drive", pos: "v.", translation: "ขับรถ", example: "She drives to work.", category: "Daily Life" },
+            { id: 13, word: "Eat", pos: "v.", translation: "กิน", example: "We eat lunch together.", category: "Daily Life" },
+            { id: 14, word: "Exercise", pos: "n.", translation: "การออกกำลังกาย", example: "Exercise is good for health.", category: "Daily Life" },
+            { id: 15, word: "Finish", pos: "v.", translation: "เสร็จสิ้น", example: "Finish your homework first.", category: "Daily Life" },
+            { id: 16, word: "Forget", pos: "v.", translation: "ลืม", example: "Don't forget your keys.", category: "Daily Life" },
+            { id: 17, word: "Help", pos: "v.", translation: "ช่วยเหลือ", example: "Can you help me?", category: "Daily Life" },
+            { id: 18, word: "Learn", pos: "v.", translation: "เรียนรู้", example: "I want to learn English.", category: "Daily Life" },
+            { id: 19, word: "Listen", pos: "v.", translation: "ฟัง", example: "Listen to the teacher.", category: "Daily Life" },
+            { id: 20, word: "Live", pos: "v.", translation: "อยู่อาศัย", example: "They live in Bangkok.", category: "Daily Life" },
+            { id: 21, word: "Open", pos: "v.", translation: "เปิด", example: "Open the door please.", category: "Daily Life" },
+            { id: 22, word: "Read", pos: "v.", translation: "อ่าน", example: "Read a book every day.", category: "Daily Life" },
+            { id: 23, word: "Remember", pos: "v.", translation: "จดจำ", example: "I remember your name.", category: "Daily Life" },
+            { id: 24, word: "Run", pos: "v.", translation: "วิ่ง", example: "He runs in the park.", category: "Daily Life" },
+            { id: 25, word: "Sleep", pos: "v.", translation: "นอนหลับ", example: "Sleep for eight hours.", category: "Daily Life" },
+            { id: 26, word: "Speak", pos: "v.", translation: "พูด", example: "She speaks three languages.", category: "Daily Life" },
+            { id: 27, word: "Study", pos: "v.", translation: "เรียน", example: "Study hard for tests.", category: "Daily Life" },
+            { id: 28, word: "Talk", pos: "v.", translation: "สนทนา", example: "Let's talk about it.", category: "Daily Life" },
+            { id: 29, word: "Think", pos: "v.", translation: "คิด", example: "I think it is good.", category: "Daily Life" },
+            { id: 30, word: "Understand", pos: "v.", translation: "เข้าใจ", example: "Do you understand?", category: "Daily Life" },
+            { id: 31, word: "Walk", pos: "v.", translation: "เดิน", example: "Walk to the shop.", category: "Daily Life" },
+            { id: 32, word: "Wash", pos: "v.", translation: "ล้าง", example: "Wash your hands.", category: "Daily Life" },
+            { id: 33, word: "Watch", pos: "v.", translation: "ดู", example: "Watch TV at night.", category: "Daily Life" },
+            { id: 34, word: "Work", pos: "v.", translation: "ทำงาน", example: "He works in an office.", category: "Daily Life" },
+            { id: 35, word: "Write", pos: "v.", translation: "เขียน", example: "Write a letter home.", category: "Daily Life" },
+            { id: 36, word: "Morning", pos: "n.", translation: "ตอนเช้า", example: "Good morning class.", category: "Daily Life" },
+            { id: 37, word: "Night", pos: "n.", translation: "กลางคืน", example: "Good night everyone.", category: "Daily Life" },
+            { id: 38, word: "Home", pos: "n.", translation: "บ้าน", example: "Stay at home today.", category: "Daily Life" },
+            { id: 39, word: "Friend", pos: "n.", translation: "เพื่อน", example: "She is my best friend.", category: "Daily Life" },
+            { id: 40, word: "Family", pos: "n.", translation: "ครอบครัว", example: "I love my family.", category: "Daily Life" },
+            { id: 41, word: "Money", pos: "n.", translation: "เงิน", example: "Save your money.", category: "Daily Life" },
+            { id: 42, word: "Time", pos: "n.", translation: "เวลา", example: "What time is it?", category: "Daily Life" },
+            { id: 43, word: "Today", pos: "n.", translation: "วันนี้", example: "Today is Monday.", category: "Daily Life" },
+            { id: 44, word: "Tomorrow", pos: "n.", translation: "พรุ่งนี้", example: "See you tomorrow.", category: "Daily Life" },
+            { id: 45, word: "Yesterday", pos: "n.", translation: "เมื่อวาน", example: "I saw him yesterday.", category: "Daily Life" },
+            { id: 46, word: "Week", pos: "n.", translation: "สัปดาห์", example: "Next week is busy.", category: "Daily Life" },
+            { id: 47, word: "Month", pos: "n.", translation: "เดือน", example: "This month is cold.", category: "Daily Life" },
+            { id: 48, word: "Year", pos: "n.", translation: "ปี", example: "Happy new year.", category: "Daily Life" },
+            { id: 49, word: "Life", pos: "n.", translation: "ชีวิต", example: "Enjoy your life.", category: "Daily Life" },
+            { id: 50, word: "Habit", pos: "n.", translation: "นิสัย", example: "Reading is a good habit.", category: "Daily Life" },
+            { id: 501, word: "Alarm", pos: "n.", translation: "นาฬิกาปลุก", example: "Set an alarm for 6 AM.", category: "Daily Life" },
+            { id: 502, word: "Towel", pos: "n.", translation: "ผ้าเช็ดตัว", example: "Dry off with a clean towel.", category: "Daily Life" },
+            { id: 503, word: "Soap", pos: "n.", translation: "สบู่", example: "Wash hands with fragrant soap.", category: "Daily Life" },
+            { id: 504, word: "Shampoo", pos: "n.", translation: "แชมพูสระผม", example: "Herbal shampoo for hair.", category: "Daily Life" },
+            { id: 505, word: "Mirror", pos: "n.", translation: "กระจกเงา", example: "Look in the bathroom mirror.", category: "Daily Life" },
+            { id: 506, word: "Wardrobe", pos: "n.", translation: "ตู้เสื้อผ้า", example: "Hang clothes in the wardrobe.", category: "Daily Life" },
+            { id: 507, word: "Broom", pos: "n.", translation: "ไม้กวาด", example: "Sweep the floor with a broom.", category: "Daily Life" },
+            { id: 508, word: "Mop", pos: "n.", translation: "ไม้ถูพื้น", example: "Mop the kitchen floor clean.", category: "Daily Life" },
+            { id: 509, word: "Trash", pos: "n.", translation: "ขยะ", example: "Throw trash into the bin.", category: "Daily Life" },
+            { id: 510, word: "Laundry", pos: "n.", translation: "ผ้าที่ต้องซัก", example: "Do the laundry on Sunday.", category: "Daily Life" },
+            { id: 511, word: "Iron", pos: "v.", translation: "รีดผ้า", example: "Iron your school uniform.", category: "Daily Life" },
+            { id: 512, word: "Pillow", pos: "n.", translation: "หมอน", example: "Soft feather sleeping pillow.", category: "Daily Life" },
+            { id: 513, word: "Blanket", pos: "n.", translation: "ผ้าห่ม", example: "Warm winter blanket.", category: "Daily Life" },
+            { id: 514, word: "Umbrella", pos: "n.", translation: "ร่ม", example: "Bring an umbrella for rain.", category: "Daily Life" },
+            { id: 515, word: "Wallet", pos: "n.", translation: "กระเป๋าเงิน", example: "Keep cash in your wallet.", category: "Daily Life" },
+            { id: 516, word: "Key", pos: "n.", translation: "กุญแจ", example: "House front door key.", category: "Daily Life" },
+            { id: 517, word: "Clock", pos: "n.", translation: "นาฬิกาแขวน", example: "Wall clock shows noon.", category: "Daily Life" },
+            { id: 518, word: "Calendar", pos: "n.", translation: "ปฏิทิน", example: "Check dates on calendar.", category: "Daily Life" },
+            { id: 519, word: "Letter", pos: "n.", translation: "จดหมาย", example: "Receive a paper letter.", category: "Daily Life" },
+            { id: 520, word: "Package", pos: "n.", translation: "พัสดุ", example: "Delivery package arrived.", category: "Daily Life" },
+            { id: 521, word: "Neighbor", pos: "n.", translation: "เพื่อนบ้าน", example: "Friendly next door neighbor.", category: "Daily Life" },
+            { id: 522, word: "Guest", pos: "n.", translation: "แขกผู้มาเยือน", example: "Welcome guests to home.", category: "Daily Life" },
+            { id: 523, word: "Routine", pos: "n.", translation: "กิจวัตรประจำวัน", example: "Daily morning exercise routine.", category: "Daily Life" },
+            { id: 524, word: "Schedule", pos: "n.", translation: "ตารางเวลา", example: "Busy daily schedule.", category: "Daily Life" },
+            { id: 525, word: "Rest", pos: "v.", translation: "พักผ่อน", example: "Rest after hard work.", category: "Daily Life" },
 
-    // กรองคำศัพท์ซ้ำออกและจำกัดไว้ที่ 300 คำพอดี
-    const uniqueFlashcards = [];
-    const seen = new Set();
+            // --- หมวด 2: Food & Drink ---
+            { id: 51, word: "Apple", pos: "n.", translation: "แอปเปิ้ล", example: "An apple a day.", category: "Food & Drink" },
+            { id: 52, word: "Banana", pos: "n.", translation: "กล้วย", example: "Monkeys like bananas.", category: "Food & Drink" },
+            { id: 53, word: "Bread", pos: "n.", translation: "ขนมปัง", example: "Toast the bread.", category: "Food & Drink" },
+            { id: 54, word: "Butter", pos: "n.", translation: "เนย", example: "Spread butter on bread.", category: "Food & Drink" },
+            { id: 55, word: "Cake", pos: "n.", translation: "เค้ก", example: "Chocolate cake is delicious.", category: "Food & Drink" },
+            { id: 56, word: "Cheese", pos: "n.", translation: "ชีส", example: "I love cheese pizza.", category: "Food & Drink" },
+            { id: 57, word: "Chicken", pos: "n.", translation: "ไก่", example: "Fried chicken for dinner.", category: "Food & Drink" },
+            { id: 58, word: "Coffee", pos: "n.", translation: "กาแฟ", example: "Hot coffee in morning.", category: "Food & Drink" },
+            { id: 59, word: "Egg", pos: "n.", translation: "ไข่", example: "Boil an egg please.", category: "Food & Drink" },
+            { id: 60, word: "Fish", pos: "n.", translation: "ปลา", example: "Fresh fish from sea.", category: "Food & Drink" },
+            { id: 61, word: "Fruit", pos: "n.", translation: "ผลไม้", example: "Eat healthy fruit.", category: "Food & Drink" },
+            { id: 62, word: "Ice", pos: "n.", translation: "น้ำแข็ง", example: "Put ice in juice.", category: "Food & Drink" },
+            { id: 63, word: "Juice", pos: "n.", translation: "น้ำผลไม้", example: "Orange juice is sweet.", category: "Food & Drink" },
+            { id: 64, word: "Meat", pos: "n.", translation: "เนื้อสัตว์", example: "Cook the meat well.", category: "Food & Drink" },
+            { id: 65, word: "Milk", pos: "n.", translation: "นม", example: "Drink milk before sleep.", category: "Food & Drink" },
+            { id: 66, word: "Noodle", pos: "n.", translation: "ก๋วยเตี๋ยว", example: "Thai style noodle soup.", category: "Food & Drink" },
+            { id: 67, word: "Rice", pos: "n.", translation: "ข้าว", example: "Steamed jasmine rice.", category: "Food & Drink" },
+            { id: 68, word: "Salad", pos: "n.", translation: "สลัด", example: "Green salad is fresh.", category: "Food & Drink" },
+            { id: 69, word: "Soup", pos: "n.", translation: "ซุป", example: "Hot chicken soup.", category: "Food & Drink" },
+            { id: 70, word: "Tea", pos: "n.", translation: "ชา", example: "Green tea with lemon.", category: "Food & Drink" },
+            { id: 71, word: "Water", pos: "n.", translation: "น้ำ", example: "Pure drinking water.", category: "Food & Drink" },
+            { id: 72, word: "Sugar", pos: "n.", translation: "น้ำตาล", example: "Too much sugar is bad.", category: "Food & Drink" },
+            { id: 73, word: "Salt", pos: "n.", translation: "เกลือ", example: "Add a pinch of salt.", category: "Food & Drink" },
+            { id: 74, word: "Pepper", pos: "n.", translation: "พริกไทย", example: "Black pepper on steak.", category: "Food & Drink" },
+            { id: 75, word: "Pork", pos: "n.", translation: "เนื้อหมู", example: "Grilled pork chops.", category: "Food & Drink" },
+            { id: 76, word: "Beef", pos: "n.", translation: "เนื้อวัว", example: "Beef burger with fries.", category: "Food & Drink" },
+            { id: 77, word: "Vegetable", pos: "n.", translation: "ผัก", example: "Eat fresh vegetables.", category: "Food & Drink" },
+            { id: 78, word: "Tomato", pos: "n.", translation: "มะเขือเทศ", example: "Red ripe tomato.", category: "Food & Drink" },
+            { id: 79, word: "Potato", pos: "n.", translation: "มันฝรั่ง", example: "Mashed potato side dish.", category: "Food & Drink" },
+            { id: 80, word: "Onion", pos: "n.", translation: "หัวหอม", example: "Chop the onion finely.", category: "Food & Drink" },
+            { id: 81, word: "Garlic", pos: "n.", translation: "กระเทียม", example: "Garlic adds good flavor.", category: "Food & Drink" },
+            { id: 82, word: "Orange", pos: "n.", translation: "ส้ม", example: "Sweet juicy orange.", category: "Food & Drink" },
+            { id: 83, word: "Grape", pos: "n.", translation: "องุ่น", example: "Purple seedless grapes.", category: "Food & Drink" },
+            { id: 84, word: "Mango", pos: "n.", translation: "มะม่วง", example: "Ripe mango with rice.", category: "Food & Drink" },
+            { id: 85, word: "Lemon", pos: "n.", translation: "มะนาว", example: "Lemon is very sour.", category: "Food & Drink" },
+            { id: 86, word: "Sweet", pos: "adj.", translation: "หวาน", example: "This candy is sweet.", category: "Food & Drink" },
+            { id: 87, word: "Sour", pos: "adj.", translation: "เปรี้ยว", example: "Sour lime juice.", category: "Food & Drink" },
+            { id: 88, word: "Bitter", pos: "adj.", translation: "ขม", example: "Black coffee is bitter.", category: "Food & Drink" },
+            { id: 89, word: "Spicy", pos: "adj.", translation: "เผ็ด", example: "Spicy Tom Yum soup.", category: "Food & Drink" },
+            { id: 90, word: "Salty", pos: "adj.", translation: "เค็ม", example: "Potato chips are salty.", category: "Food & Drink" },
+            { id: 91, word: "Breakfast", pos: "n.", translation: "อาหารเช้า", example: "Eat breakfast early.", category: "Food & Drink" },
+            { id: 92, word: "Lunch", pos: "n.", translation: "อาหารกลางวัน", example: "Lunch at noon.", category: "Food & Drink" },
+            { id: 93, word: "Dinner", pos: "n.", translation: "อาหารเย็น", example: "Family dinner time.", category: "Food & Drink" },
+            { id: 94, word: "Snack", pos: "n.", translation: "ขนมขบเคี้ยว", example: "Healthy afternoon snack.", category: "Food & Drink" },
+            { id: 95, word: "Dessert", pos: "n.", translation: "ของหวาน", example: "Ice cream for dessert.", category: "Food & Drink" },
+            { id: 96, word: "Hungry", pos: "adj.", translation: "หิว", example: "I am very hungry.", category: "Food & Drink" },
+            { id: 97, word: "Thirsty", pos: "adj.", translation: "กระหายน้ำ", example: "Thirsty after running.", category: "Food & Drink" },
+            { id: 98, word: "Delicious", pos: "adj.", translation: "อร่อย", example: "This meal is delicious.", category: "Food & Drink" },
+            { id: 99, word: "Menu", pos: "n.", translation: "เมนู", example: "Read the food menu.", category: "Food & Drink" },
+            { id: 100, word: "Order", pos: "v.", translation: "สั่งอาหาร", example: "Ready to order food.", category: "Food & Drink" },
+            { id: 526, word: "Mushroom", pos: "n.", translation: "เห็ด", example: "Stir-fried mushrooms.", category: "Food & Drink" },
+            { id: 527, word: "Cabbage", pos: "n.", translation: "กะหล่ำปลี", example: "Crunchy green cabbage.", category: "Food & Drink" },
+            { id: 528, word: "Carrot", pos: "n.", translation: "แครอท", example: "Fresh orange carrots.", category: "Food & Drink" },
+            { id: 529, word: "Cucumber", pos: "n.", translation: "แตงกวา", example: "Slice fresh cucumber.", category: "Food & Drink" },
+            { id: 530, word: "Watermelon", pos: "n.", translation: "แตงโม", example: "Sweet red watermelon.", category: "Food & Drink" },
+            { id: 531, word: "Papaya", pos: "n.", translation: "มะละกอ", example: "Papaya salad dish.", category: "Food & Drink" },
+            { id: 532, word: "Pineapple", pos: "n.", translation: "สับปะรด", example: "Juicy tropical pineapple.", category: "Food & Drink" },
+            { id: 533, word: "Strawberry", pos: "n.", translation: "สตรอว์เบอร์รี", example: "Fresh red strawberries.", category: "Food & Drink" },
+            { id: 534, word: "Shrimp", pos: "n.", translation: "กุ้ง", example: "Grilled river shrimp.", category: "Food & Drink" },
+            { id: 535, word: "Crab", pos: "n.", translation: "ปู", example: "Steamed sea crab.", category: "Food & Drink" },
+            { id: 536, word: "Squid", pos: "n.", translation: "ปลาหมึก", example: "Grilled squid with sauce.", category: "Food & Drink" },
+            { id: 537, word: "Flour", pos: "n.", translation: "แป้งทำอาหาร", example: "Baking flour for cake.", category: "Food & Drink" },
+            { id: 538, word: "Oil", pos: "n.", translation: "น้ำมันพืช", example: "Cooking vegetable oil.", category: "Food & Drink" },
+            { id: 539, word: "Vinegar", pos: "n.", translation: "น้ำส้มสายชู", example: "Acidic cooking vinegar.", category: "Food & Drink" },
+            { id: 540, word: "Sauce", pos: "n.", translation: "ซอส", example: "Tomato dipping sauce.", category: "Food & Drink" },
+            { id: 541, word: "Soup bowl", pos: "n.", translation: "ชามซุป", example: "Ceramic soup bowl.", category: "Food & Drink" },
+            { id: 542, word: "Plate", pos: "n.", translation: "จานอาหาร", example: "Clean dinner plate.", category: "Food & Drink" },
+            { id: 543, word: "Spoon", pos: "n.", translation: "ช้อน", example: "Eat soup with spoon.", category: "Food & Drink" },
+            { id: 544, word: "Fork", pos: "n.", translation: "ส้อม", example: "Hold fork and knife.", category: "Food & Drink" },
+            { id: 545, word: "Knife", pos: "n.", translation: "มีด", example: "Sharp kitchen knife.", category: "Food & Drink" },
+            { id: 546, word: "Glass", pos: "n.", translation: "แก้วน้ำ", example: "Glass of cold water.", category: "Food & Drink" },
+            { id: 547, word: "Cup", pos: "n.", translation: "ถ้วยกาแฟ", example: "Ceramic coffee cup.", category: "Food & Drink" },
+            { id: 548, word: "Stove", pos: "n.", translation: "เตาแก๊ส", example: "Turn on kitchen stove.", category: "Food & Drink" },
+            { id: 549, word: "Refrigerator", pos: "n.", translation: "ตู้เย็น", example: "Store food in refrigerator.", category: "Food & Drink" },
+            { id: 550, word: "Microwave", pos: "n.", translation: "เตาไมโครเวฟ", example: "Heat food in microwave.", category: "Food & Drink" },
 
-    for (const item of rawFlashcards) {
-      const lowerVocab = item.vocab.toLowerCase();
-      if (!seen.has(lowerVocab)) {
-        seen.add(lowerVocab);
-        uniqueFlashcards.push(item);
-      }
-      if (uniqueFlashcards.length >= 300) break;
-    }
+            // --- หมวด 3: Travel & Places ---
+            { id: 101, word: "Airport", pos: "n.", translation: "สนามบิน", example: "Arrive at airport early.", category: "Travel & Places" },
+            { id: 102, word: "Bus", pos: "n.", translation: "รถประจำทาง", example: "Take the city bus.", category: "Travel & Places" },
+            { id: 103, word: "Car", pos: "n.", translation: "รถยนต์", example: "Park the red car.", category: "Travel & Places" },
+            { id: 104, word: "City", pos: "n.", translation: "เมือง", example: "Big crowded city.", category: "Travel & Places" },
+            { id: 105, word: "Country", pos: "n.", translation: "ประเทศ", example: "Visit a new country.", category: "Travel & Places" },
+            { id: 106, word: "Hotel", pos: "n.", translation: "โรงแรม", example: "Book a hotel room.", category: "Travel & Places" },
+            { id: 107, word: "Map", pos: "n.", translation: "แผนที่", example: "Check the road map.", category: "Travel & Places" },
+            { id: 108, word: "Park", pos: "n.", translation: "สวนสาธารณะ", example: "Walk in the park.", category: "Travel & Places" },
+            { id: 109, word: "Plane", pos: "n.", translation: "เครื่องบิน", example: "Board the plane now.", category: "Travel & Places" },
+            { id: 110, word: "Road", pos: "n.", translation: "ถนน", example: "Cross the busy road.", category: "Travel & Places" },
+            { id: 111, word: "School", pos: "n.", translation: "โรงเรียน", example: "Students go to school.", category: "Travel & Places" },
+            { id: 112, word: "Station", pos: "n.", translation: "สถานี", example: "Train station platform.", category: "Travel & Places" },
+            { id: 113, word: "Street", pos: "n.", translation: "ถนน/ซอย", example: "Walk down the street.", category: "Travel & Places" },
+            { id: 114, word: "Ticket", pos: "n.", translation: "ตั๋ว", example: "Show your entrance ticket.", category: "Travel & Places" },
+            { id: 115, word: "Train", pos: "n.", translation: "รถไฟ", example: "Fast express train.", category: "Travel & Places" },
+            { id: 116, word: "Travel", pos: "v.", translation: "ท่องเที่ยว", example: "Love to travel world.", category: "Travel & Places" },
+            { id: 117, word: "Visit", pos: "v.", translation: "เยี่ยมชม", example: "Visit museum today.", category: "Travel & Places" },
+            { id: 118, word: "Beach", pos: "n.", translation: "ชายหาด", example: "Sandy ocean beach.", category: "Travel & Places" },
+            { id: 119, word: "Mountain", pos: "n.", translation: "ภูเขา", example: "Climb high mountain.", category: "Travel & Places" },
+            { id: 120, word: "River", pos: "n.", translation: "แม่น้ำ", example: "Boat on the river.", category: "Travel & Places" },
+            { id: 121, word: "Sea", pos: "n.", translation: "ทะเล", example: "Swim in the sea.", category: "Travel & Places" },
+            { id: 122, word: "Island", pos: "n.", translation: "เกาะ", example: "Tropical paradise island.", category: "Travel & Places" },
+            { id: 123, word: "Bridge", pos: "n.", translation: "สะพาน", example: "Cross over the bridge.", category: "Travel & Places" },
+            { id: 124, word: "Building", pos: "n.", translation: "อาคาร", example: "Tall modern building.", category: "Travel & Places" },
+            { id: 125, word: "Hospital", pos: "n.", translation: "โรงพยาบาล", example: "Doctors at hospital.", category: "Travel & Places" },
+            { id: 126, word: "Market", pos: "n.", translation: "ตลาด", example: "Buy food at market.", category: "Travel & Places" },
+            { id: 127, word: "Museum", pos: "n.", translation: "พิพิธภัณฑ์", example: "History art museum.", category: "Travel & Places" },
+            { id: 128, word: "Restaurant", pos: "n.", translation: "ร้านอาหาร", example: "Dine at restaurant.", category: "Travel & Places" },
+            { id: 129, word: "Shop", pos: "n.", translation: "ร้านค้า", example: "Gift shop nearby.", category: "Travel & Places" },
+            { id: 130, word: "Zoo", pos: "n.", translation: "สวนสัตว์", example: "See animals at zoo.", category: "Travel & Places" },
+            { id: 131, word: "Bank", pos: "n.", translation: "ธนาคาร", example: "Withdraw cash from bank.", category: "Travel & Places" },
+            { id: 132, word: "Temple", pos: "n.", translation: "วัด", example: "Ancient Thai temple.", category: "Travel & Places" },
+            { id: 133, word: "Passport", pos: "n.", translation: "หนังสือเดินทาง", example: "Keep passport safe.", category: "Travel & Places" },
+            { id: 134, word: "Luggage", pos: "n.", translation: "กระเป๋าเดินทาง", example: "Pack your luggage.", category: "Travel & Places" },
+            { id: 135, word: "Flight", pos: "n.", translation: "เที่ยวบิน", example: "Direct flight to Tokyo.", category: "Travel & Places" },
+            { id: 136, word: "Taxi", pos: "n.", translation: "รถแท็กซี่", example: "Call a yellow taxi.", category: "Travel & Places" },
+            { id: 137, word: "Ship", pos: "n.", translation: "เรือใหญ่", example: "Cruise ship on ocean.", category: "Travel & Places" },
+            { id: 138, word: "Boat", pos: "n.", translation: "เรือ", example: "Row a small boat.", category: "Travel & Places" },
+            { id: 139, word: "Bicycle", pos: "n.", translation: "รถจักรยาน", example: "Ride bicycle in park.", category: "Travel & Places" },
+            { id: 141, word: "North", pos: "n.", translation: "ทิศเหนือ", example: "Travel to the north.", category: "Travel & Places" },
+            { id: 142, word: "South", pos: "n.", translation: "ทิศใต้", example: "Warm southern beaches.", category: "Travel & Places" },
+            { id: 143, word: "East", pos: "n.", translation: "ทิศตะวันออก", example: "Sun rises in east.", category: "Travel & Places" },
+            { id: 144, word: "West", pos: "n.", translation: "ทิศตะวันตก", example: "Sun sets in west.", category: "Travel & Places" },
+            { id: 145, word: "Left", pos: "n.", translation: "ซ้าย", example: "Turn left at corner.", category: "Travel & Places" },
+            { id: 146, word: "Right", pos: "n.", translation: "ขวา", example: "Turn right next signal.", category: "Travel & Places" },
+            { id: 147, word: "Straight", pos: "adv.", translation: "ตรงไป", example: "Go straight ahead.", category: "Travel & Places" },
+            { id: 148, word: "Near", pos: "prep.", translation: "ใกล้", example: "Hotel is near station.", category: "Travel & Places" },
+            { id: 149, word: "Far", pos: "adj.", translation: "ไกล", example: "Is it far from here?", category: "Travel & Places" },
+            { id: 150, word: "Where", pos: "adv.", translation: "ที่ไหน", example: "Where is the bathroom?", category: "Travel & Places" },
+            { id: 301, word: "Journey", pos: "n.", translation: "การเดินทาง", example: "A long journey across the country.", category: "Travel & Places" },
+            { id: 302, word: "Destination", pos: "n.", translation: "จุดหมายปลายทาง", example: "Arrive at our final destination.", category: "Travel & Places" },
+            { id: 303, word: "Reservation", pos: "n.", translation: "การจองล่วงหน้า", example: "Make a table reservation.", category: "Travel & Places" },
+            { id: 304, word: "Reception", pos: "n.", translation: "แผนกต้อนรับ", example: "Ask the hotel reception.", category: "Travel & Places" },
+            { id: 305, word: "Souvenir", pos: "n.", translation: "ของที่ระลึก", example: "Buy local souvenirs.", category: "Travel & Places" },
+            { id: 306, word: "Guidebook", pos: "n.", translation: "หนังสือคู่มือท่องเที่ยว", example: "Read the city guidebook.", category: "Travel & Places" },
+            { id: 307, word: "Subway", pos: "n.", translation: "รถไฟใต้ดิน", example: "Take the subway downtown.", category: "Travel & Places" },
+            { id: 308, word: "Platform", pos: "n.", translation: "ชานชาลา", example: "Wait at train platform 3.", category: "Travel & Places" },
+            { id: 309, word: "Customs", pos: "n.", translation: "ศุลกากร", example: "Pass through airport customs.", category: "Travel & Places" },
+            { id: 310, word: "Embassy", pos: "n.", translation: "สถานทูต", example: "Visit the foreign embassy.", category: "Travel & Places" },
 
-    const allFlashcards = uniqueFlashcards;
-    let currentList = [...allFlashcards];
-    let currentIndex = 0;
+            // --- หมวด 4: Technology & Science ---
+            { id: 151, word: "Computer", pos: "n.", translation: "คอมพิวเตอร์", example: "Use computer for work.", category: "Technology & Science" },
+            { id: 152, word: "Internet", pos: "n.", translation: "อินเทอร์เน็ต", example: "Connect to high speed internet.", category: "Technology & Science" },
+            { id: 153, word: "Phone", pos: "n.", translation: "โทรศัพท์", example: "Smart mobile phone.", category: "Technology & Science" },
+            { id: 154, word: "Screen", pos: "n.", translation: "หน้าจอ", example: "Bright display screen.", category: "Technology & Science" },
+            { id: 155, word: "Website", pos: "n.", translation: "เว็บไซต์", example: "Browse useful website.", category: "Technology & Science" },
+            { id: 156, word: "Data", pos: "n.", translation: "ข้อมูล", example: "Save data to cloud.", category: "Technology & Science" },
+            { id: 157, word: "File", pos: "n.", translation: "ไฟล์", example: "Download project file.", category: "Technology & Science" },
+            { id: 158, word: "Code", pos: "n.", translation: "โค้ด/รหัส", example: "Write clean software code.", category: "Technology & Science" },
+            { id: 159, word: "Robot", pos: "n.", translation: "หุ่นยนต์", example: "Smart modern robot.", category: "Technology & Science" },
+            { id: 160, word: "Space", pos: "n.", translation: "อวกาศ", example: "Explore outer space.", category: "Technology & Science" },
+            { id: 161, word: "Energy", pos: "n.", translation: "พลังงาน", example: "Clean solar energy.", category: "Technology & Science" },
+            { id: 162, word: "System", pos: "n.", translation: "ระบบ", example: "Operating system update.", category: "Technology & Science" },
+            { id: 163, word: "App", pos: "n.", translation: "แอปพลิเคชัน", example: "Install new mobile app.", category: "Technology & Science" },
+            { id: 164, word: "Mouse", pos: "n.", translation: "เมาส์", example: "Click with optical mouse.", category: "Technology & Science" },
+            { id: 165, word: "Keyboard", pos: "n.", translation: "แป้นพิมพ์", example: "Type on wireless keyboard.", category: "Technology & Science" },
+            { id: 166, word: "Digital", pos: "adj.", translation: "ดิจิทัล", example: "Digital age technology.", category: "Technology & Science" },
+            { id: 167, word: "Network", pos: "n.", translation: "เครือข่าย", example: "Secure computer network.", category: "Technology & Science" },
+            { id: 168, word: "Program", pos: "n.", translation: "โปรแกรม", example: "Run python program.", category: "Technology & Science" },
+            { id: 169, word: "Battery", pos: "n.", translation: "แบตเตอรี่", example: "Full battery charge.", category: "Technology & Science" },
+            { id: 170, word: "Camera", pos: "n.", translation: "กล้องถ่ายรูป", example: "HD digital camera.", category: "Technology & Science" },
+            { id: 171, word: "Device", pos: "n.", translation: "อุปกรณ์", example: "Smart electronic device.", category: "Technology & Science" },
+            { id: 172, word: "Email", pos: "n.", translation: "อีเมล", example: "Send business email.", category: "Technology & Science" },
+            { id: 173, word: "Online", pos: "adj.", translation: "ออนไลน์", example: "Online learning portal.", category: "Technology & Science" },
+            { id: 174, word: "Password", pos: "n.", translation: "รหัสผ่าน", example: "Strong secret password.", category: "Technology & Science" },
+            { id: 175, word: "User", pos: "n.", translation: "ผู้ใช้งาน", example: "Active app user.", category: "Technology & Science" },
+            { id: 176, word: "Video", pos: "n.", translation: "วิดีโอ", example: "Watch streaming video.", category: "Technology & Science" },
+            { id: 177, word: "Audio", pos: "n.", translation: "เสียง", example: "Clear audio sound.", category: "Technology & Science" },
+            { id: 178, word: "Signal", pos: "n.", translation: "สัญญาณ", example: "Strong Wi-Fi signal.", category: "Technology & Science" },
+            { id: 179, word: "Search", pos: "v.", translation: "ค้นหา", example: "Search information online.", category: "Technology & Science" },
+            { id: 180, word: "Click", pos: "v.", translation: "คลิก", example: "Click the blue button.", category: "Technology & Science" },
+            { id: 181, word: "Press", pos: "v.", translation: "กด", example: "Press enter key.", category: "Technology & Science" },
+            { id: 182, word: "Save", pos: "v.", translation: "บันทึก", example: "Save changes now.", category: "Technology & Science" },
+            { id: 183, word: "Delete", pos: "v.", translation: "ลบ", example: "Delete old files.", category: "Technology & Science" },
+            { id: 184, word: "Share", pos: "v.", translation: "แบ่งปัน", example: "Share post with friends.", category: "Technology & Science" },
+            { id: 185, word: "Science", pos: "n.", translation: "วิทยาศาสตร์", example: "Study modern science.", category: "Technology & Science" },
+            { id: 186, word: "Lab", pos: "n.", translation: "ห้องทดลอง", example: "Science research lab.", category: "Technology & Science" },
+            { id: 187, word: "Light", pos: "n.", translation: "แสง", example: "Speed of bright light.", category: "Technology & Science" },
+            { id: 188, word: "Sound", pos: "n.", translation: "เสียง", example: "Sound waves travel.", category: "Technology & Science" },
+            { id: 189, word: "Planet", pos: "n.", translation: "ดาวเคราะห์", example: "Earth is our planet.", category: "Technology & Science" },
+            { id: 190, word: "Star", pos: "n.", translation: "ดวงดาว", example: "Shining night star.", category: "Technology & Science" },
+            { id: 191, word: "Moon", pos: "n.", translation: "ดวงจันทร์", example: "Full moon tonight.", category: "Technology & Science" },
+            { id: 192, word: "Sun", pos: "n.", translation: "ดวงอาทิตย์", example: "Hot bright sun.", category: "Technology & Science" },
+            { id: 193, word: "Earth", pos: "n.", translation: "โลก", example: "Protect planet Earth.", category: "Technology & Science" },
+            { id: 194, word: "Nature", pos: "n.", translation: "ธรรมชาติ", example: "Beautiful green nature.", category: "Technology & Science" },
+            { id: 195, word: "Machine", pos: "n.", translation: "เครื่องจักร", example: "Industrial factory machine.", category: "Technology & Science" },
+            { id: 196, word: "Engine", pos: "n.", translation: "เครื่องยนต์", example: "Car engine power.", category: "Technology & Science" },
+            { id: 197, word: "Power", pos: "n.", translation: "พลังงาน/อำนาจ", example: "Electric power plant.", category: "Technology & Science" },
+            { id: 198, word: "Test", pos: "n.", translation: "การทดสอบ", example: "System accuracy test.", category: "Technology & Science" },
+            { id: 199, word: "Result", pos: "n.", translation: "ผลลัพธ์", example: "Lab test results.", category: "Technology & Science" },
+            { id: 200, word: "Future", pos: "n.", translation: "อนาคต", example: "Technology of future.", category: "Technology & Science" },
+            { id: 311, word: "Algorithm", pos: "n.", translation: "อัลกอริทึม", example: "Search engine algorithm.", category: "Technology & Science" },
+            { id: 312, word: "Software", pos: "n.", translation: "ซอฟต์แวร์", example: "Install new computer software.", category: "Technology & Science" },
+            { id: 313, word: "Hardware", pos: "n.", translation: "ฮาร์ดแวร์", example: "Upgrade PC hardware parts.", category: "Technology & Science" },
+            { id: 314, word: "Database", pos: "n.", translation: "ฐานข้อมูล", example: "Query customer database.", category: "Technology & Science" },
+            { id: 315, word: "Backup", pos: "n.", translation: "การสำรองข้อมูล", example: "Create weekly system backup.", category: "Technology & Science" },
+            { id: 316, word: "Download", pos: "v.", translation: "ดาวน์โหลด", example: "Download mobile application.", category: "Technology & Science" },
+            { id: 317, word: "Upload", pos: "v.", translation: "อัปโหลด", example: "Upload photos to cloud.", category: "Technology & Science" },
+            { id: 318, word: "Browser", pos: "n.", translation: "เว็บเบราว์เซอร์", example: "Open web browser window.", category: "Technology & Science" },
+            { id: 319, word: "Router", pos: "n.", translation: "เร้าเตอร์ไวไฟ", example: "Wireless internet router.", category: "Technology & Science" },
+            { id: 320, word: "Bluetooth", pos: "n.", translation: "บลูทูธ", example: "Connect wireless bluetooth headphones.", category: "Technology & Science" },
 
-    function speakVocab(event) {
-      if (event) event.stopPropagation();
-      if (currentList.length === 0) return;
+            // --- หมวด 5: Sports & Hobbies ---
+            { id: 201, word: "Ball", pos: "n.", translation: "ลูกบอล", example: "Kick the leather ball.", category: "Sports & Hobbies" },
+            { id: 202, word: "Game", pos: "n.", translation: "เกม", example: "Play fun board game.", category: "Sports & Hobbies" },
+            { id: 203, word: "Goal", pos: "n.", translation: "ประตู/เป้าหมาย", example: "Score a winning goal.", category: "Sports & Hobbies" },
+            { id: 204, word: "Music", pos: "n.", translation: "ดนตรี", example: "Listen to pop music.", category: "Sports & Hobbies" },
+            { id: 205, word: "Song", pos: "n.", translation: "เพลง", example: "Sing a favorite song.", category: "Sports & Hobbies" },
+            { id: 206, word: "Sport", pos: "n.", translation: "กีฬา", example: "Play outdoor sports.", category: "Sports & Hobbies" },
+            { id: 207, word: "Team", pos: "n.", translation: "ทีม", example: "Winning football team.", category: "Sports & Hobbies" },
+            { id: 208, word: "Swim", pos: "v.", translation: "ว่ายน้ำ", example: "Swim in pool.", category: "Sports & Hobbies" },
+            { id: 209, word: "Play", pos: "v.", translation: "เล่น", example: "Play guitar daily.", category: "Sports & Hobbies" },
+            { id: 210, word: "Sing", pos: "v.", translation: "ร้องเพลง", example: "Sing on stage.", category: "Sports & Hobbies" },
+            { id: 211, word: "Art", pos: "n.", translation: "ศิลปะ", example: "Modern art gallery.", category: "Sports & Hobbies" },
+            { id: 212, word: "Paint", pos: "v.", translation: "วาดภาพ/ระบายสี", example: "Paint a landscape.", category: "Sports & Hobbies" },
+            { id: 213, word: "Draw", pos: "v.", translation: "วาดภาพ", example: "Draw cartoon characters.", category: "Sports & Hobbies" },
+            { id: 214, word: "Book", pos: "n.", translation: "หนังสือ", example: "Read story book.", category: "Sports & Hobbies" },
+            { id: 215, word: "Movie", pos: "n.", translation: "ภาพยนตร์", example: "Watch action movie.", category: "Sports & Hobbies" },
+            { id: 216, word: "Football", pos: "n.", translation: "ฟุตบอล", example: "Play football weekend.", category: "Sports & Hobbies" },
+            { id: 217, word: "Tennis", pos: "n.", translation: "เทนนิส", example: "Tennis match game.", category: "Sports & Hobbies" },
+            { id: 218, word: "Running", pos: "n.", translation: "การวิ่ง", example: "Morning running habit.", category: "Sports & Hobbies" },
+            { id: 219, word: "Yoga", pos: "n.", translation: "โยคะ", example: "Practice daily yoga.", category: "Sports & Hobbies" },
+            { id: 220, word: "Guitar", pos: "n.", translation: "กีตาร์", example: "Acoustic wooden guitar.", category: "Sports & Hobbies" },
+            { id: 221, word: "Piano", pos: "n.", translation: "เปียโน", example: "Play classical piano.", category: "Sports & Hobbies" },
+            { id: 222, word: "Photo", pos: "n.", translation: "รูปภาพ", example: "Take a beautiful photo.", category: "Sports & Hobbies" },
+            { id: 223, word: "Hobby", pos: "n.", translation: "งานอดิเรก", example: "Gardening is my hobby.", category: "Sports & Hobbies" },
+            { id: 224, word: "Match", pos: "n.", translation: "การแข่งขัน", example: "Watch live match.", category: "Sports & Hobbies" },
+            { id: 225, word: "Player", pos: "n.", translation: "ผู้เล่น", example: "Talented sports player.", category: "Sports & Hobbies" },
+            { id: 226, word: "Win", pos: "v.", translation: "ชนะ", example: "Win gold medal.", category: "Sports & Hobbies" },
+            { id: 227, word: "Lose", pos: "v.", translation: "แพ้", example: "Don't fear to lose.", category: "Sports & Hobbies" },
+            { id: 228, word: "Score", pos: "n.", translation: "คะแนน", example: "High game score.", category: "Sports & Hobbies" },
+            { id: 229, word: "Jump", pos: "v.", translation: "กระโดด", example: "Jump high over hurdle.", category: "Sports & Hobbies" },
+            { id: 230, word: "Catch", pos: "v.", translation: "จับ/รับ", example: "Catch the ball.", category: "Sports & Hobbies" },
+            { id: 231, word: "Throw", pos: "v.", translation: "ขว้าง", example: "Throw the frisbee.", category: "Sports & Hobbies" },
+            { id: 232, word: "Hit", pos: "v.", translation: "ตี", example: "Hit baseball hard.", category: "Sports & Hobbies" },
+            { id: 233, word: "Race", pos: "n.", translation: "การแข่งขันความเร็ว", example: "Car racing track.", category: "Sports & Hobbies" },
+            { id: 234, word: "Pool", pos: "n.", translation: "สระว่ายน้ำ", example: "Deep swimming pool.", category: "Sports & Hobbies" },
+            { id: 235, word: "Gym", pos: "n.", translation: "โรงยิม", example: "Workout at gym.", category: "Sports & Hobbies" },
+            { id: 236, word: "Club", pos: "n.", translation: "ชมรม/สโมสร", example: "Join sports club.", category: "Sports & Hobbies" },
+            { id: 237, word: "Fan", pos: "n.", translation: "แฟนคลับ", example: "Football club fan.", category: "Sports & Hobbies" },
+            { id: 238, word: "Champion", pos: "n.", translation: "แชมป์/ผู้ชนะเลิศ", example: "World champion title.", category: "Sports & Hobbies" },
+            { id: 239, word: "Camp", pos: "n.", translation: "ค่าย/การตั้งแคมป์", example: "Summer outdoor camp.", category: "Sports & Hobbies" },
+            { id: 240, word: "Climb", pos: "v.", translation: "ปีนป่าย", example: "Climb mountain wall.", category: "Sports & Hobbies" },
+            { id: 241, word: "Cycle", pos: "v.", translation: "ปั่นจักรยาน", example: "Cycle around park.", category: "Sports & Hobbies" },
+            { id: 242, word: "Craft", pos: "n.", translation: "งานฝีมือ", example: "Paper craft design.", category: "Sports & Hobbies" },
+            { id: 243, word: "Chess", pos: "n.", translation: "หมากรุก", example: "Play chess strategy.", category: "Sports & Hobbies" },
+            { id: 244, word: "Puzzle", pos: "n.", translation: "ปริศนาอักษรไขว้", example: "Solve jigsaw puzzle.", category: "Sports & Hobbies" },
+            { id: 245, word: "Collection", pos: "n.", translation: "ของสะสม", example: "Stamp collection book.", category: "Sports & Hobbies" },
+            { id: 246, word: "Fun", pos: "n.", translation: "ความสนุกสนาน", example: "Have fun today.", category: "Sports & Hobbies" },
+            { id: 321, word: "Basketball", pos: "n.", translation: "บาสเกตบอล", example: "Play street basketball.", category: "Sports & Hobbies" },
+            { id: 322, word: "Badminton", pos: "n.", translation: "แบดมินตัน", example: "Hit badminton shuttlecock.", category: "Sports & Hobbies" },
+            { id: 323, word: "Volleyball", pos: "n.", translation: "วอลเลย์บอล", example: "Beach volleyball game.", category: "Sports & Hobbies" },
+            { id: 324, word: "Boxing", pos: "n.", translation: "มวย", example: "Professional boxing match.", category: "Sports & Hobbies" },
+            { id: 325, word: "Cycling", pos: "n.", translation: "การปั่นจักรยาน", example: "Morning road cycling.", category: "Sports & Hobbies" },
+            { id: 326, word: "Hiking", pos: "n.", translation: "การเดินป่า", example: "Weekend mountain hiking.", category: "Sports & Hobbies" },
+            { id: 327, word: "Camping", pos: "n.", translation: "การตั้งแคมป์", example: "Forest camping trip.", category: "Sports & Hobbies" },
+            { id: 328, word: "Fishing", pos: "n.", translation: "การตกปลา", example: "Relaxing lake fishing.", category: "Sports & Hobbies" },
+            { id: 329, word: "Gardening", pos: "n.", translation: "การทำสวน", example: "Plant flowers in gardening.", category: "Sports & Hobbies" },
+            { id: 330, word: "Cooking", pos: "n.", translation: "การทำอาหาร", example: "Italian food cooking class.", category: "Sports & Hobbies" },
 
-      const text = currentList[currentIndex].vocab;
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.9;
-      
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utterance);
-    }
+            // --- หมวด 6: Business & Work ---
+            { id: 247, word: "Boss", pos: "n.", translation: "เจ้านาย", example: "Meet the company boss.", category: "Business & Work" },
+            { id: 248, word: "Office", pos: "n.", translation: "สำนักงาน", example: "Modern corporate office.", category: "Business & Work" },
+            { id: 249, word: "Salary", pos: "n.", translation: "เงินเดือน", example: "Monthly employee salary.", category: "Business & Work" },
+            { id: 250, word: "Task", pos: "n.", translation: "งาน/หน้าที่", example: "Complete daily tasks.", category: "Business & Work" },
+            { id: 331, word: "Meeting", pos: "n.", translation: "การประชุม", example: "Attend morning team meeting.", category: "Business & Work" },
+            { id: 332, word: "Project", pos: "n.", translation: "โครงการ", example: "Manage software project.", category: "Business & Work" },
+            { id: 333, word: "Client", pos: "n.", translation: "ลูกค้า", example: "Pitch proposal to client.", category: "Business & Work" },
+            { id: 334, word: "Contract", pos: "n.", translation: "สัญญา", example: "Sign business contract.", category: "Business & Work" },
+            { id: 335, word: "Interview", pos: "n.", translation: "การสัมภาษณ์", example: "Job interview tomorrow.", category: "Business & Work" },
+            { id: 336, word: "Resume", pos: "n.", translation: "ประวัติย่อส่วนตัว", example: "Update your work resume.", category: "Business & Work" },
+            { id: 337, word: "Colleague", pos: "n.", translation: "เพื่อนร่วมงาน", example: "Friendly office colleague.", category: "Business & Work" },
+            { id: 338, word: "Manager", pos: "n.", translation: "ผู้จัดการ", example: "Report to department manager.", category: "Business & Work" },
+            { id: 339, word: "Company", pos: "n.", translation: "บริษัท", example: "Tech startup company.", category: "Business & Work" },
+            { id: 340, word: "Budget", pos: "n.", translation: "งบประมาณ", example: "Annual marketing budget.", category: "Business & Work" },
+            { id: 341, word: "Profit", pos: "n.", translation: "กำไร", example: "High business profit.", category: "Business & Work" },
+            { id: 342, word: "Loss", pos: "n.", translation: "ขาดทุน", example: "Financial quarterly loss.", category: "Business & Work" },
+            { id: 343, word: "Market", pos: "n.", translation: "ตลาดการค้า", example: "Global market trends.", category: "Business & Work" },
+            { id: 344, word: "Strategy", pos: "n.", translation: "กลยุทธ์", example: "Sales growth strategy.", category: "Business & Work" },
+            { id: 345, word: "Goal", pos: "n.", translation: "เป้าหมายงาน", example: "Achieve annual business goals.", category: "Business & Work" },
+            { id: 346, word: "Report", pos: "n.", translation: "รายงาน", example: "Submit financial report.", category: "Business & Work" },
+            { id: 347, word: "Presentation", pos: "n.", translation: "การนำเสนอผลงาน", example: "Deliver slide presentation.", category: "Business & Work" },
+            { id: 348, word: "Negotiation", pos: "n.", translation: "การเจรจาต่อรอง", example: "Successful price negotiation.", category: "Business & Work" },
+            { id: 349, word: "Partnership", pos: "n.", translation: "ความเป็นหุ้นส่วน", example: "Business partnership agreement.", category: "Business & Work" },
+            { id: 350, word: "Brand", pos: "n.", translation: "แบรนด์สินค้า", example: "Famous global luxury brand.", category: "Business & Work" },
+            { id: 351, word: "Customer", pos: "n.", translation: "ลูกค้าผู้ซื้อ", example: "Loyal store customer.", category: "Business & Work" },
+            { id: 352, word: "Service", pos: "n.", translation: "การบริการ", example: "Excellent customer service.", category: "Business & Work" },
+            { id: 353, word: "Product", pos: "n.", translation: "ผลิตภัณฑ์", example: "New product launch.", category: "Business & Work" },
+            { id: 354, word: "Quality", pos: "n.", translation: "คุณภาพ", example: "High manufacturing quality.", category: "Business & Work" },
+            { id: 355, word: "Price", pos: "n.", translation: "ราคา", example: "Affordable product price.", category: "Business & Work" },
+            { id: 356, word: "Discount", pos: "n.", translation: "ส่วนลด", example: "Special seasonal discount.", category: "Business & Work" },
+            { id: 357, word: "Invoice", pos: "n.", translation: "ใบแจ้งหนี้", example: "Send payment invoice.", category: "Business & Work" },
+            { id: 358, word: "Receipt", pos: "n.", translation: "ใบเสร็จรับเงิน", example: "Keep purchase receipt.", category: "Business & Work" },
+            { id: 359, word: "Tax", pos: "n.", translation: "ภาษี", example: "Annual income tax.", category: "Business & Work" },
+            { id: 360, word: "Investment", pos: "n.", translation: "การลงทุน", example: "Smart real estate investment.", category: "Business & Work" },
+            { id: 361, word: "Economy", pos: "n.", translation: "เศรษฐกิจ", example: "Global market economy.", category: "Business & Work" },
+            { id: 362, word: "Inflation", pos: "n.", translation: "เงินเฟ้อ", example: "Rising economic inflation.", category: "Business & Work" },
+            { id: 363, word: "Retirement", pos: "n.", translation: "การเกษียณอายุ", example: "Plan for retirement savings.", category: "Business & Work" },
+            { id: 364, word: "Insurance", pos: "n.", translation: "ประกันภัย", example: "Health insurance policy.", category: "Business & Work" },
+            { id: 365, word: "Loan", pos: "n.", translation: "เงินกู้ยืม", example: "Bank house loan.", category: "Business & Work" },
+            { id: 366, word: "Debt", pos: "n.", translation: "หนี้สิน", example: "Pay off credit card debt.", category: "Business & Work" },
+            { id: 367, word: "Wealth", pos: "n.", translation: "ความมั่งคั่ง", example: "Build family wealth.", category: "Business & Work" },
+            { id: 368, word: "Success", pos: "n.", translation: "ความสำเร็จ", example: "Hard work brings success.", category: "Business & Work" },
+            { id: 369, word: "Challenge", pos: "n.", translation: "ความท้าทาย", example: "Exciting career challenge.", category: "Business & Work" },
+            { id: 370, word: "Solution", pos: "n.", translation: "ทางออก/การแก้ปัญหา", example: "Find effective solutions.", category: "Business & Work" },
+            { id: 371, word: "Leader", pos: "n.", translation: "ผู้นำ", example: "Inspiring team leader.", category: "Business & Work" },
+            { id: 372, word: "Vision", pos: "n.", translation: "วิสัยทัศน์", example: "Company corporate vision.", category: "Business & Work" },
+            { id: 373, word: "Mission", pos: "n.", translation: "ภารกิจ", example: "Our core business mission.", category: "Business & Work" },
+            { id: 374, word: "Target", pos: "n.", translation: "เป้าหมาย", example: "Monthly sales target.", category: "Business & Work" },
+            { id: 375, word: "Career", pos: "n.", translation: "อาชีพ/เส้นทางอาชีพ", example: "Build a strong career.", category: "Business & Work" },
 
-    function flipCard() {
-      if (currentList.length === 0) return;
-      document.getElementById('flashcard').classList.toggle('flipped');
-    }
+            // --- หมวด 7: Emotions & Personality ---
+            { id: 251, word: "Happy", pos: "adj.", translation: "มีความสุข", example: "Feeling very happy today.", category: "Emotions & Personality" },
+            { id: 252, word: "Sad", pos: "adj.", translation: "เศร้า", example: "Why are you sad?", category: "Emotions & Personality" },
+            { id: 253, word: "Angry", pos: "adj.", translation: "โกรธ", example: "Do not stay angry.", category: "Emotions & Personality" },
+            { id: 254, word: "Excited", pos: "adj.", translation: "ตื่นเต้น", example: "Excited for the trip.", category: "Emotions & Personality" },
+            { id: 376, word: "Joy", pos: "n.", translation: "ความปีติยินดี", example: "Bring joy to others.", category: "Emotions & Personality" },
+            { id: 377, word: "Grief", pos: "n.", translation: "ความโศกเศร้า", example: "Coping with deep grief.", category: "Emotions & Personality" },
+            { id: 378, word: "Fear", pos: "n.", translation: "ความกลัว", example: "Overcome your inner fears.", category: "Emotions & Personality" },
+            { id: 379, word: "Courage", pos: "n.", translation: "ความกล้าหาญ", example: "Have courage to try.", category: "Emotions & Personality" },
+            { id: 380, word: "Hope", pos: "n.", translation: "ความหวัง", example: "Never lose hope.", category: "Emotions & Personality" },
+            { id: 381, word: "Peace", pos: "n.", translation: "ความสงบสุข", example: "Inner mind peace.", category: "Emotions & Personality" },
+            { id: 382, word: "Stress", pos: "n.", translation: "ความเครียด", example: "Relieve work stress.", category: "Emotions & Personality" },
+            { id: 383, word: "Anxiety", pos: "n.", translation: "ความวิตกกังวล", example: "Manage test anxiety.", category: "Emotions & Personality" },
+            { id: 384, word: "Confidence", pos: "n.", translation: "ความมั่นใจ", example: "Build self confidence.", category: "Emotions & Personality" },
+            { id: 385, word: "Patience", pos: "n.", translation: "ความอดทน", example: "Patience is a virtue.", category: "Emotions & Personality" },
+            { id: 386, word: "Kindness", pos: "n.", translation: "ความเมตตา", example: "Show kindness to all.", category: "Emotions & Personality" },
+            { id: 387, word: "Honesty", pos: "n.", translation: "ความซื่อสัตย์", example: "Honesty is the best policy.", category: "Emotions & Personality" },
+            { id: 388, word: "Wisdom", pos: "n.", translation: "ความฉลาด/ภูมิปัญญา", example: "Gain wisdom with age.", category: "Emotions & Personality" },
+            { id: 389, word: "Humor", pos: "n.", translation: "อารมณ์ขัน", example: "Great sense of humor.", category: "Emotions & Personality" },
+            { id: 390, word: "Empathy", pos: "n.", translation: "ความเห็นอกเห็นใจ", example: "Show empathy for friends.", category: "Emotions & Personality" },
+            { id: 391, word: "Gratitude", pos: "n.", translation: "ความสำนึกบุญคุณ", example: "Express deep gratitude.", category: "Emotions & Personality" },
+            { id: 392, word: "Calm", pos: "adj.", translation: "ใจเย็น/สงบ", example: "Stay calm during crisis.", category: "Emotions & Personality" },
+            { id: 393, word: "Brave", pos: "adj.", translation: "กล้าหาญ", example: "Be brave and speak up.", category: "Emotions & Personality" },
+            { id: 394, word: "Shy", pos: "adj.", translation: "ขี้อาย", example: "She is a shy person.", category: "Emotions & Personality" },
+            { id: 395, word: "Friendly", pos: "adj.", translation: "เป็นมิตร", example: "Very friendly neighbor.", category: "Emotions & Personality" },
+            { id: 396, word: "Polite", pos: "adj.", translation: "สุภาพ", example: "Always be polite.", category: "Emotions & Personality" },
+            { id: 397, word: "Rude", pos: "adj.", translation: "หยาบคาย", example: "Do not be rude.", category: "Emotions & Personality" },
+            { id: 398, word: "Smart", pos: "adj.", translation: "ฉลาด", example: "Smart student in class.", category: "Emotions & Personality" },
+            { id: 399, word: "Clever", pos: "adj.", translation: "หลักแหลม", example: "Clever puzzle solver.", category: "Emotions & Personality" },
+            { id: 400, word: "Stupid", pos: "adj.", translation: "โง่เขลา", example: "Make a stupid mistake.", category: "Emotions & Personality" },
+            { id: 401, word: "Lazy", pos: "adj.", translation: "ขี้เกียจ", example: "Do not be lazy today.", category: "Emotions & Personality" },
+            { id: 402, word: "Active", pos: "adj.", translation: "กระฉับกระเฉง", example: "Active lifestyle habit.", category: "Emotions & Personality" },
+            { id: 403, word: "Creative", pos: "adj.", translation: "มีความคิดสร้างสรรค์", example: "Creative design ideas.", category: "Emotions & Personality" },
+            { id: 404, word: "Curious", pos: "adj.", translation: "อยากรู้อยากเห็น", example: "Curious about science.", category: "Emotions & Personality" },
+            { id: 405, word: "Serious", pos: "adj.", translation: "จริงจัง", example: "Serious business talk.", category: "Emotions & Personality" },
+            { id: 406, word: "Funny", pos: "adj.", translation: "ตลกขบขัน", example: "Funny comedy movie.", category: "Emotions & Personality" },
+            { id: 407, word: "Generous", pos: "adj.", translation: "ใจบุญ/ใจกว้าง", example: "Generous donation gift.", category: "Emotions & Personality" },
+            { id: 408, word: "Selfish", pos: "adj.", translation: "เห็นแก่ตัว", example: "Do not be selfish.", category: "Emotions & Personality" },
+            { id: 409, word: "Patient", pos: "adj.", translation: "มีความอดทน", example: "Be patient with kids.", category: "Emotions & Personality" },
+            { id: 410, word: "Proud", pos: "adj.", translation: "ภูมิใจ", example: "Proud of your work.", category: "Emotions & Personality" },
+            { id: 411, word: "Nervous", pos: "adj.", translation: "ประหม่า/ประหม่ากังวล", example: "Nervous before speech.", category: "Emotions & Personality" },
+            { id: 412, word: "Relaxed", pos: "adj.", translation: "ผ่อนคลาย", example: "Relaxed weekend mood.", category: "Emotions & Personality" },
+            { id: 413, word: "Surprised", pos: "adj.", translation: "ประหลาดใจ", example: "Surprised by birthday gift.", category: "Emotions & Personality" },
+            { id: 414, word: "Tired", pos: "adj.", translation: "เหนื่อยล้า", example: "Tired after long walk.", category: "Emotions & Personality" },
+            { id: 415, word: "Bored", pos: "adj.", translation: "เบื่อหน่าย", example: "Bored on rainy day.", category: "Emotions & Personality" },
+            { id: 416, word: "Lonely", pos: "adj.", translation: "เหงา", example: "Feel lonely at night.", category: "Emotions & Personality" },
+            { id: 417, word: "Sincere", pos: "adj.", translation: "จริงใจ", example: "Sincere apology words.", category: "Emotions & Personality" },
+            { id: 418, word: "Loyal", pos: "adj.", translation: "ซื่อสัตย์ภักดี", example: "Loyal pet dog friend.", category: "Emotions & Personality" },
+            { id: 419, word: "Strict", pos: "adj.", translation: "เข้มงวด", example: "Strict school rules.", category: "Emotions & Personality" },
+            { id: 420, word: "Gentle", pos: "adj.", translation: "อ่อนโยน", example: "Gentle touch and voice.", category: "Emotions & Personality" },
+            { id: 421, word: "Strong", pos: "adj.", translation: "แข็งแกร่ง", example: "Strong and healthy body.", category: "Emotions & Personality" },
+            { id: 422, word: "Weak", pos: "adj.", translation: "อ่อนแอ", example: "Weak from sickness.", category: "Emotions & Personality" },
+            { id: 423, word: "Tough", pos: "adj.", translation: "ทรหด/ยากลำบาก", example: "Tough training session.", category: "Emotions & Personality" },
+            { id: 424, word: "Flexible", pos: "adj.", translation: "ยืดหยุ่น", example: "Flexible working hours.", category: "Emotions & Personality" },
+            { id: 425, word: "Independent", pos: "adj.", translation: "พึ่งพาตนเองได้", example: "Independent young adult.", category: "Emotions & Personality" },
+            { id: 426, word: "Dependent", pos: "adj.", translation: "พึ่งพาผู้อื่น", example: "Dependent on family.", category: "Emotions & Personality" },
+            { id: 427, word: "Optimistic", pos: "adj.", translation: "มองโลกในแง่ดี", example: "Optimistic attitude always.", category: "Emotions & Personality" },
+            { id: 428, word: "Pessimistic", pos: "adj.", translation: "มองโลกในแง่ร้าย", example: "Pessimistic view of future.", category: "Emotions & Personality" },
+            { id: 429, word: "Ambitious", pos: "adj.", translation: "มีความทะเยอทะยาน", example: "Ambitious career goals.", category: "Emotions & Personality" },
+            { id: 430, word: "Modest", pos: "adj.", translation: "ถ่อมตัว", example: "Modest and humble person.", category: "Emotions & Personality" },
+            { id: 431, word: "Arrogant", pos: "adj.", translation: "เย่อหยิ่ง", example: "Arrogant attitude behavior.", category: "Emotions & Personality" },
+            { id: 432, word: "Humble", pos: "adj.", translation: "ถ่อมตน", example: "Humble beginnings in life.", category: "Emotions & Personality" },
+            { id: 433, word: "Passionate", pos: "adj.", translation: "มีความหลงใหล", example: "Passionate about music.", category: "Emotions & Personality" },
+            { id: 434, word: "Enthusiastic", pos: "adj.", translation: "กระตือรือร้น", example: "Enthusiastic team worker.", category: "Emotions & Personality" },
+            { id: 435, word: "Cautious", pos: "adj.", translation: "ระมัดระวัง", example: "Cautious driving habits.", category: "Emotions & Personality" },
+            { id: 436, word: "Careless", pos: "adj.", translation: "สะเพร่า/ประมาท", example: "Careless mistake on test.", category: "Emotions & Personality" },
+            { id: 437, word: "Responsible", pos: "adj.", translation: "มีความรับผิดชอบ", example: "Responsible project leader.", category: "Emotions & Personality" },
+            { id: 438, word: "Reliable", pos: "adj.", translation: "พึ่งพาได้/ไว้วางใจได้", example: "Reliable close friend.", category: "Emotions & Personality" },
+            { id: 439, word: "Trustworthy", pos: "adj.", translation: "น่าเชื่อถือ", example: "Trustworthy business partner.", category: "Emotions & Personality" },
+            { id: 440, word: "Sympathetic", pos: "adj.", translation: "มีความเห็นอกเห็นใจ", example: "Sympathetic listener friend.", category: "Emotions & Personality" },
+            { id: 441, word: "Tolerant", pos: "adj.", translation: "มีความอดกลั้น", example: "Tolerant of different views.", category: "Emotions & Personality" },
+            { id: 442, word: "Sociable", pos: "adj.", translation: "เข้าสังคมเก่ง", example: "Sociable party guest.", category: "Emotions & Personality" },
+            { id: 443, word: "Introverted", pos: "adj.", translation: "เก็บตัว", example: "Quiet introverted personality.", category: "Emotions & Personality" },
+            { id: 444, word: "Extroverted", pos: "adj.", translation: "เปิดเผย/ชอบเข้าสังคม", example: "Outgoing extroverted person.", category: "Emotions & Personality" },
+            { id: 445, word: "Dynamic", pos: "adj.", translation: "มีพลังขับเคลื่อนสูง", example: "Dynamic team player.", category: "Emotions & Personality" },
+            { id: 446, word: "Stable", pos: "adj.", translation: "มั่นคงทางอารมณ์", example: "Emotionally stable person.", category: "Emotions & Personality" },
+            { id: 447, word: "Sensitive", pos: "adj.", translation: "อ่อนไหวง่าย", example: "Sensitive to criticism.", category: "Emotions & Personality" },
+            { id: 448, word: "Resilient", pos: "adj.", translation: "ฟื้นตัวเร็ว/ยืดหยุ่นจิตใจ", example: "Resilient mental strength.", category: "Emotions & Personality" },
+            { id: 449, word: "Compassionate", pos: "adj.", translation: "มีความกรุณา", example: "Compassionate heart healer.", category: "Emotions & Personality" },
+            { id: 450, word: "Determined", pos: "adj.", translation: "มุ่งมั่นเด็ดเดี่ยว", example: "Determined to succeed.", category: "Emotions & Personality" },
+            { id: 451, word: "Persistent", pos: "adj.", translation: "มีความพยายามต่อเนื่อง", example: "Persistent hard work.", category: "Emotions & Personality" },
+            { id: 452, word: "Diligent", pos: "adj.", translation: "ขยันหมั่นเพียร", example: "Diligent student learner.", category: "Emotions & Personality" },
+            { id: 453, word: "Industrious", pos: "adj.", translation: "ขยันขันแข็ง", example: "Industrious factory workers.", category: "Emotions & Personality" },
+            { id: 454, word: "Resourceful", pos: "adj.", translation: "มีไหวพริบแก้ปัญหาเก่ง", example: "Resourceful problem solver.", category: "Emotions & Personality" },
+            { id: 455, word: "Innovative", pos: "adj.", translation: "ชอบนวัตกรรมใหม่ๆ", example: "Innovative tech startup.", category: "Emotions & Personality" },
+            { id: 456, word: "Prudent", pos: "adj.", translation: "รอบคอบสุขุม", example: "Prudent financial choices.", category: "Emotions & Personality" },
+            { id: 457, word: "Vigilant", pos: "adj.", translation: "ตื่นตัวระแวดระวัง", example: "Vigilant security guards.", category: "Emotions & Personality" },
+            { id: 458, word: "Observant", pos: "adj.", translation: "ช่างสังเกต", example: "Observant nature lover.", category: "Emotions & Personality" },
+            { id: 459, word: "Inquisitive", pos: "adj.", translation: "ชอบซักถามเรียนรู้", example: "Inquisitive young mind.", category: "Emotions & Personality" },
+            { id: 460, word: "Articulate", pos: "adj.", translation: "พูดจาชัดเจนฉะฉาน", example: "Articulate speaker guest.", category: "Business & Work" },
+            { id: 461, word: "Eloquent", pos: "adj.", translation: "มีวาทศิลป์ยอดเยี่ยม", example: "Eloquent speech delivery.", category: "Business & Work" },
+            { id: 462, word: "Persuasive", pos: "adj.", translation: "โน้มน้าวใจเก่ง", example: "Persuasive sales pitch.", category: "Business & Work" },
+            { id: 463, word: "Diplomatic", pos: "adj.", translation: "มีชั้นเชิงทางการทูต", example: "Diplomatic negotiation skills.", category: "Business & Work" },
+            { id: 464, word: "Tactful", pos: "adj.", translation: "มีมารยาทรู้กาลเทศะ", example: "Tactful response to critique.", category: "Business & Work" },
+            { id: 465, word: "Courteous", pos: "adj.", translation: "มีสัมมาคารวะ", example: "Courteous hotel staff.", category: "Business & Work" },
+            { id: 466, word: "Gracious", pos: "adj.", translation: "มีน้ำใจงามสง่า", example: "Gracious host behavior.", category: "Emotions & Personality" },
+            { id: 467, word: "Hospitality", pos: "n.", translation: "การต้อนรับขับสู้", example: "Warm hotel hospitality.", category: "Travel & Places" },
+            { id: 468, word: "Generosity", pos: "n.", translation: "ความใจกว้างเผื่อแผ่", example: "Acts of pure generosity.", category: "Emotions & Personality" },
+            { id: 469, word: "Magnanimous", pos: "adj.", translation: "ใจกว้างใจนักเลง", example: "Magnanimous victor in game.", category: "Emotions & Personality" },
+            { id: 470, word: "Altruistic", pos: "adj.", translation: "เห็นแก่ประโยชน์ผู้อื่น", example: "Altruistic volunteer work.", category: "Emotions & Personality" },
+            { id: 471, word: "Benevolent", pos: "adj.", translation: "มีเมตตาปรารถนาดี", example: "Benevolent community fund.", category: "Emotions & Personality" },
+            { id: 472, word: "Philanthropic", pos: "adj.", translation: "เกี่ยวกับการกุศล", example: "Philanthropic billionaire donor.", category: "Business & Work" },
+            { id: 473, word: "Charitable", pos: "adj.", translation: "ใจบุญสุนทาน", example: "Charitable foundation support.", category: "Emotions & Personality" },
+            { id: 474, word: "Sympathy", pos: "n.", translation: "ความเห็นอกเห็นใจ", example: "Send a note of sympathy.", category: "Emotions & Personality" },
+            { id: 475, word: "Condolence", pos: "n.", translation: "การแสดงความเสียใจ", example: "Offer heartfelt condolences.", category: "Emotions & Personality" },
+            { id: 476, word: "Consolation", pos: "n.", translation: "การปลอบใจ", example: "Words of warm consolation.", category: "Emotions & Personality" },
+            { id: 477, word: "Solace", pos: "n.", translation: "ความบรรเทาทุกข์ใจ", example: "Find solace in nature.", category: "Emotions & Personality" },
+            { id: 478, word: "Reassurance", pos: "n.", translation: "การทำให้มั่นใจขึ้น", example: "Need emotional reassurance.", category: "Emotions & Personality" },
+            { id: 479, word: "Encouragement", pos: "n.", translation: "กำลังใจ", example: "Words of strong encouragement.", category: "Emotions & Personality" },
+            { id: 480, word: "Inspiration", pos: "n.", translation: "แรงบันดาลใจ", example: "Artist creative inspiration.", category: "Sports & Hobbies" },
+            { id: 481, word: "Motivation", pos: "n.", translation: "แรงจูงใจ", example: "Daily fitness motivation.", category: "Sports & Hobbies" },
+            { id: 482, word: "Ambition", pos: "n.", translation: "ความทะเยอทะยาน", example: "Drive and high ambition.", category: "Business & Work" },
+            { id: 483, word: "Aspiration", pos: "n.", translation: "ความมุ่งมาดปรารถนา", example: "Fulfill career aspirations.", category: "Business & Work" },
+            { id: 484, word: "Dedication", pos: "n.", translation: "ความอุทิศตน", example: "Hard work and dedication.", category: "Business & Work" },
+            { id: 485, word: "Commitment", pos: "n.", translation: "ความผูกพัน/สัญญาใจ", example: "Long term business commitment.", category: "Business & Work" },
+            { id: 486, word: "Devotion", pos: "n.", translation: "ความศรัทธาอุทิศตัว", example: "Lifelong devotion to art.", category: "Sports & Hobbies" },
+            { id: 487, word: "Fidelity", pos: "n.", translation: "ความซื่อสัตย์ภักดี", example: "Fidelity in relationships.", category: "Emotions & Personality" },
+            { id: 488, word: "Allegiance", pos: "n.", translation: "ความจงรักภักดี", example: "Pledge of national allegiance.", category: "Travel & Places" },
+            { id: 489, word: "Patriotism", pos: "n.", translation: "ความรักชาติ", example: "Deep national patriotism.", category: "Travel & Places" },
+            { id: 490, word: "Nationalism", pos: "n.", translation: "ลัทชาตินิยม", example: "Study political nationalism.", category: "Travel & Places" },
+            { id: 491, word: "Citizenship", pos: "n.", translation: "ความเป็นพลเมือง", example: "Apply for dual citizenship.", category: "Travel & Places" },
+            { id: 492, word: "Community", pos: "n.", translation: "ชุมชน", example: "Local neighborhood community.", category: "Travel & Places" },
+            { id: 493, word: "Society", pos: "n.", translation: "สังคม", example: "Modern global society.", category: "Travel & Places" },
+            { id: 494, word: "Civilization", pos: "n.", translation: "อารยธรรม", example: "Ancient Egyptian civilization.", category: "Travel & Places" },
+            { id: 495, word: "Heritage", pos: "n.", translation: "มรดกทางวัฒนธรรม", example: "Protect cultural heritage.", category: "Travel & Places" },
+            { id: 496, word: "Tradition", pos: "n.", translation: "ประเพณี", example: "Old family holiday tradition.", category: "Daily Life" },
+            { id: 497, word: "Custom", pos: "n.", translation: "ธรรมเนียมปฏิบัติ", example: "Local wedding customs.", category: "Daily Life" },
+            { id: 498, word: "Culture", pos: "n.", translation: "วัฒนธรรม", example: "Explore foreign cultures.", category: "Travel & Places" },
+            { id: 499, word: "Sympathy", pos: "n.", translation: "ความเห็นอกเห็นใจ", example: "Show sympathy to friends.", category: "Emotions & Personality" },
+            { id: 500, word: "Vocabulary", pos: "n.", translation: "คำศัพท์", example: "Learn new English vocabulary.", category: "Daily Life" }
+        ];
 
-    function updateCardDisplay() {
-      const card = document.getElementById('flashcard');
-      card.classList.remove('flipped');
+        // กรองคำซ้ำอย่างแม่นยำ
+        const uniqueMap = new Map();
+        rawVocabularyData.forEach(item => {
+            const lowerWord = item.word.toLowerCase();
+            if (!uniqueMap.has(lowerWord)) {
+                uniqueMap.set(lowerWord, item);
+            }
+        });
+        
+        let vocabularyData = Array.from(uniqueMap.values());
 
-      if (currentList.length === 0) {
-        document.getElementById('vocabText').innerText = "ไม่พบคำศัพท์";
-        document.getElementById('meaningText').innerText = "ลองค้นหาด้วยคำอื่น";
-        document.getElementById('cardCounter').innerText = "0 / 0";
-        document.getElementById('prevBtn').disabled = true;
-        document.getElementById('nextBtn').disabled = true;
-        return;
-      }
+        let currentIndex = 0;
+        let filteredData = [...vocabularyData];
 
-      document.getElementById('vocabText').innerText = currentList[currentIndex].vocab;
-      document.getElementById('meaningText').innerText = currentList[currentIndex].meaning;
-      document.getElementById('cardCounter').innerText = `คำที่ ${currentIndex + 1} / ${currentList.length}`;
-      
-      document.getElementById('prevBtn').disabled = currentIndex === 0;
-      document.getElementById('nextBtn').disabled = currentIndex === currentList.length - 1;
-    }
+        const card = document.getElementById('card');
+        const cardWord = document.getElementById('cardWord');
+        const cardPos = document.getElementById('cardPos');
+        const cardCategory = document.getElementById('cardCategory');
+        const cardTranslation = document.getElementById('cardTranslation');
+        const cardExample = document.getElementById('cardExample');
+        const counter = document.getElementById('counter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const searchInput = document.getElementById('searchInput');
+        const totalSubtitle = document.getElementById('totalSubtitle');
 
-    function prevCard() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        updateCardDisplay();
-        speakVocab();
-      }
-    }
+        function updateCard() {
+            if (filteredData.length === 0) {
+                cardWord.textContent = "ไม่พบคำศัพท์";
+                cardPos.textContent = "";
+                cardCategory.textContent = "";
+                cardTranslation.textContent = "-";
+                cardExample.textContent = "ลองเปลี่ยนคำค้นหาหรือหมวดหมู่ดูใหม่อีกครั้ง";
+                counter.textContent = "0 / 0";
+                return;
+            }
 
-    function nextCard() {
-      if (currentIndex < currentList.length - 1) {
-        currentIndex++;
-        updateCardDisplay();
-        speakVocab();
-      }
-    }
+            const current = filteredData[currentIndex];
+            cardWord.textContent = current.word;
+            cardPos.textContent = current.pos;
+            cardCategory.textContent = current.category;
+            cardTranslation.textContent = current.translation;
+            cardExample.textContent = `"${current.example}"`;
 
-    function filterCards() {
-      const query = document.getElementById('searchInput').value.toLowerCase().trim();
-      currentList = allFlashcards.filter(item => 
-        item.vocab.toLowerCase().includes(query) || 
-        item.meaning.toLowerCase().includes(query)
-      );
-      currentIndex = 0;
-      updateCardDisplay();
-    }
+            card.classList.remove('flipped');
+            counter.textContent = `${currentIndex + 1} / ${filteredData.length}`;
+        }
 
-    updateCardDisplay();
-  </script>
+        function flipCard() {
+            card.classList.toggle('flipped');
+        }
 
+        function nextCard() {
+            if (filteredData.length === 0) return;
+            currentIndex = (currentIndex + 1) % filteredData.length;
+            updateCard();
+        }
+
+        function prevCard() {
+            if (filteredData.length === 0) return;
+            currentIndex = (currentIndex - 1 + filteredData.length) % filteredData.length;
+            updateCard();
+        }
+
+        // ฟังก์ชันกรองคำศัพท์ (รองรับทั้ง หมวดหมู่ และ ช่องค้นหา คำศัพท์ภาษาอังกฤษ/คำแปลไทย)
+        function filterVocabulary() {
+            const selectedCategory = categoryFilter.value;
+            const query = searchInput.value.toLowerCase().trim();
+
+            filteredData = vocabularyData.filter(item => {
+                const matchesCategory = (selectedCategory === "All" || item.category === selectedCategory);
+                const matchesSearch = item.word.toLowerCase().includes(query) || item.translation.toLowerCase().includes(query);
+                return matchesCategory && matchesSearch;
+            });
+
+            currentIndex = 0;
+            updateCard();
+        }
+
+        // ฟังก์ชันอ่านออกเสียงภาษาอังกฤษ
+        function playAudio(event) {
+            event.stopPropagation();
+            if ('speechSynthesis' in window) {
+                if (filteredData.length === 0) return;
+                const currentWord = filteredData[currentIndex].word;
+                const utterance = new SpeechSynthesisUtterance(currentWord);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("เบราว์เซอร์ของคุณไม่รองรับระบบเสียงพูดอัตโนมัติ");
+            }
+        }
+
+        // อัปเดตข้อความแสดงจำนวนคำทั้งหมด
+        totalSubtitle.textContent = `คลังคำศัพท์สะสมรวมทั้งหมด ${vocabularyData.length} คำ`;
+
+        // โหลดการ์ดใบแรกเมื่อเปิดเว็บ
+        updateCard();
+    </script>
 </body>
 </html>
