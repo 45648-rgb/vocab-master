@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แบบทดสอบคำศัพท์ 550 คำ - Gamified Quiz</title>
+    <title>English Vocabulary Quiz - เฉลยคำแปล</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -24,6 +24,36 @@
             width: 100%;
             max-width: 650px;
         }
+        h2 {
+            color: #2f3640;
+            text-align: center;
+            margin-top: 0;
+        }
+        .mode-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .btn-mode {
+            padding: 15px;
+            background-color: #f1f2f6;
+            border: 2px solid #dfe4ea;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #2f3640;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-mode:hover {
+            background-color: #e3e4e8;
+            border-color: #74b9ff;
+        }
         .header-stats {
             display: flex;
             justify-content: space-between;
@@ -33,7 +63,7 @@
             font-size: 14px;
             font-weight: bold;
             color: #2f3640;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .timer-bar-container {
             width: 100%;
@@ -49,70 +79,88 @@
             background-color: #2ed573;
             transition: width 1s linear;
         }
-        h2 {
-            color: #2f3640;
-            text-align: center;
-            margin-top: 0;
-        }
-        .quiz-info {
-            font-size: 13px;
-            color: #718093;
-            margin-bottom: 15px;
-            text-align: center;
-        }
         .question {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 20px;
             color: #2f3640;
+            text-align: center;
         }
-        .options button {
-            display: block;
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 10px;
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .btn-choice {
+            padding: 14px;
             background-color: #f8f9fa;
             border: 2px solid #dfe4ea;
             border-radius: 10px;
-            cursor: pointer;
             font-size: 16px;
-            text-align: left;
+            font-weight: 500;
+            cursor: pointer;
             transition: 0.2s;
+            text-align: center;
         }
-        .options button:hover:not(:disabled) {
-            background-color: #e3f2fd;
+        .btn-choice:hover:not(:disabled) {
+            background-color: #74b9ff;
+            color: white;
+            border-color: #74b9ff;
+        }
+        .typing-box {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .typing-box input {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            border: 2px solid #dfe4ea;
+            border-radius: 10px;
+            outline: none;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .typing-box input:focus {
             border-color: #3498db;
         }
-        .options button.hidden-option {
-            display: none;
-        }
-        .lifelines {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        .btn-lifeline, .btn-skip {
-            flex: 1;
-            padding: 10px;
+        .btn-submit {
+            background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: bold;
-            font-size: 14px;
+            cursor: pointer;
             transition: 0.2s;
         }
-        .btn-lifeline { background-color: #ffa502; }
-        .btn-lifeline:hover:not(:disabled) { background-color: #ff7f00; }
-        .btn-skip { background-color: #ff4757; }
-        .btn-skip:hover:not(:disabled) { background-color: #ff6b81; }
-        .btn-lifeline:disabled, .btn-skip:disabled {
-            background-color: #ced6e0;
-            cursor: not-allowed;
+        .btn-submit:hover {
+            background-color: #2980b9;
         }
-        #result-container {
+        #feedback-text {
             text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            min-height: 24px;
+        }
+        .footer-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .btn-back {
+            background-color: #718093;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
         }
         .stats-grid {
             display: grid;
@@ -134,20 +182,41 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            margin-top: 10px;
             transition: 0.2s;
         }
-        .btn-restart:hover { background-color: #26af5f; }
+        .btn-restart:hover {
+            background-color: #26af5f;
+        }
     </style>
 </head>
 <body>
 
     <div class="quiz-container">
-        <h2>⚔️ ศัพท์ 550 คำ Challenge</h2>
-        
-        <div id="quiz-app">
+        <!-- หน้าจอเลือกโหมดเกม -->
+        <div id="menu-screen">
+            <h2>🎯 เลือกรูปแบบการทดสอบคำศัพท์</h2>
+            <div class="mode-selection">
+                <button class="btn-mode" onclick="startQuiz('multiple')">
+                    <span style="font-size: 24px;">🔤</span>
+                    <div>
+                        <div>โหมด 4 ตัวเลือก (Multiple Choice)</div>
+                        <div style="font-size: 12px; color: #718093; font-weight: normal;">เลือกคำแปลภาษาไทยที่ถูกต้อง</div>
+                    </div>
+                </button>
+                <button class="btn-mode" onclick="startQuiz('typing')">
+                    <span style="font-size: 24px;">⌨️</span>
+                    <div>
+                        <div>โหมดพิมพ์คำศัพท์ (Typing Quiz)</div>
+                        <div style="font-size: 12px; color: #718093; font-weight: normal;">ดูคำแปลภาษาไทย แล้วพิมพ์คำศัพท์ภาษาอังกฤษ</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- หน้าจอเล่นเกม -->
+        <div id="quiz-screen" style="display: none;">
             <div class="header-stats">
-                <span id="score-display">🏆 แต้ม XP: 0</span>
+                <span id="score-display">🏆 XP: 0</span>
                 <span id="streak-display">🔥 Streak: 0</span>
                 <span id="timer-display">⏱️ 15s</span>
             </div>
@@ -156,25 +225,34 @@
                 <div class="timer-bar" id="timer-bar"></div>
             </div>
 
-            <div class="quiz-info" id="quiz-mode-title">กำลังโหลดรูปแบบการทดสอบ...</div>
-            <div class="question" id="question-text">กำลังโหลดคำถาม...</div>
-            <div class="options" id="options-container"></div>
+            <div class="question" id="question-text">กำลังโหลด...</div>
+            
+            <!-- โหมด 4 ตัวเลือก -->
+            <div class="choices-grid" id="choices-container" style="display: none;"></div>
 
-            <div class="lifelines">
-                <button class="btn-lifeline" id="btn-5050" onclick="useFiftyFifty()">⚡ ตัดช้อยส์ 50/50</button>
-                <button class="btn-skip" id="btn-skip-q" onclick="skipQuestion()">⏭️ ข้ามข้อนี้</button>
+            <!-- โหมดพิมพ์ตอบ -->
+            <div class="typing-box" id="typing-container" style="display: none;">
+                <input type="text" id="user-answer-input" placeholder="พิมพ์คำศัพท์ภาษาอังกฤษ..." autocomplete="off" onkeypress="handleKeyPress(event)">
+                <button class="btn-submit" onclick="submitTypedAnswer()">ส่งคำตอบ</button>
+            </div>
+
+            <div id="feedback-text"></div>
+
+            <div class="footer-nav">
+                <button class="btn-back" onclick="returnToMenu()">🏠 กลับหน้าหลัก</button>
+                <span id="progress-indicator" style="font-size: 14px; color: #718093;">ข้อ 1 / 10</span>
             </div>
         </div>
 
-        <div id="result-container" style="display: none;">
-            <h2>📊 สรุปสถิติการทดสอบ</h2>
+        <!-- หน้าจอสรุปผล -->
+        <div id="result-screen" style="display: none;">
+            <h2>📊 สรุปผลการทดสอบ</h2>
             <div class="stats-grid" id="stats-summary"></div>
-            <button class="btn-restart" onclick="initQuiz()">เล่นใหม่อีกครั้ง</button>
+            <button class="btn-restart" onclick="returnToMenu()">เลือกโหมดอื่น / เล่นอีกครั้ง</button>
         </div>
     </div>
 
     <script>
-        // คลังคำศัพท์ (คุณสามารถนำรายการคำศัพท์ทั้ง 550 คำมาวางต่อในนี้ได้เลยครับ)
         const allVocabulary = [
             { word: "Ability", meaning: "ความสามารถ" },
             { word: "Absolute", meaning: "แน่นอน, สมบูรณ์" },
@@ -186,49 +264,64 @@
             { word: "Achieve", meaning: "บรรลุเป้าหมาย" },
             { word: "Acknowledge", meaning: "ยอมรับ, รับรู้" },
             { word: "Acquire", meaning: "ได้รับ" },
-            { word: "Active", meaning: "กระฉับกระเฉง" },
-            { word: "Adapt", meaning: "ปรับตัว" },
-            { word: "Add", meaning: "เพิ่ม" },
-            { word: "Address", meaning: "ที่อยู่, จัดการ" },
-            { word: "Adjust", meaning: "ปรับเปลี่ยน" },
-            { word: "Administer", meaning: "จัดการ, บริหาร" },
-            { word: "Admire", meaning: "ชมเชย, ชื่นชม" },
-            { word: "Admit", meaning: "ยอมรับ" },
-            { word: "Adopt", meaning: "รับเลี้ยง, นำมาใช้" },
-            { word: "Advance", meaning: "ล่วงหน้า, พัฒนา" },
-            { word: "Advantage", meaning: "ข้อได้เปรียบ" },
             { word: "Advertise", meaning: "โฆษณา" },
             { word: "Advice", meaning: "คำแนะนำ" },
-            { word: "Advise", meaning: "แนะนำ" },
             { word: "Affect", meaning: "มีผลกระทบ" },
-            { word: "Afford", meaning: "สามารถซื้อได้" },
             { word: "Agency", meaning: "หน่วยงาน" },
-            { word: "Agenda", meaning: "วาระการประชุม" },
-            { word: "Agent", meaning: "ตัวแทน" },
-            { word: "Agree", meaning: "เห็นด้วย" },
-            { word: "Ahead", meaning: "ข้างหน้า" },
-            { word: "Aid", meaning: "ความช่วยเหลือ" },
-            { word: "Aim", meaning: "เป้าหมาย, เล็ง" },
-            { word: "Air", meaning: "อากาศ" },
-            { word: "Aircraft", meaning: "อากาศยาน" },
-            { word: "Airline", meaning: "สายการบิน" },
-            { word: "Airport", meaning: "สนามบิน" },
-            { word: "Alarm", meaning: "นาฬิกาปลุก, สัญญาณเตือน" },
-            { word: "Album", meaning: "อัลบั้ม" },
-            { word: "Alcohol", meaning: "แอลกอฮอล์" },
-            { word: "Alive", meaning: "ยังมีชีวิตอยู่" },
-            { word: "Allow", meaning: "อนุญาต" },
-            { word: "Almost", meaning: "เกือบจะ" },
-            { word: "Alone", meaning: "คนเดียว" },
-            { word: "Along", meaning: "ตามทาง" },
-            { word: "Already", meaning: "เรียบร้อยแล้ว" },
-            { word: "Also", meaning: "ด้วย, เช่นกัน" },
-            { word: "Alternative", meaning: "ทางเลือก" },
-            { word: "Although", meaning: "แม้ว่า" },
-            { word: "Always", meaning: "เสมอ" }
-  
+            { word: "Agreement", meaning: "ข้อตกลง" },
+            { word: "Ambitious", meaning: "ทะเยอทะยาน" },
+    { word: "Amount", meaning: "จำนวน" },
+    { word: "Analysis", meaning: "การวิเคราะห์" },
+    { word: "Analyze", meaning: "วิเคราะห์" },
+    { word: "Ancient", meaning: "โบราณ" },
+    { word: "Angry", meaning: "โกรธ" },
+    { word: "Animal", meaning: "สัตว์" },
+    { word: "Announce", meaning: "ประกาศ" },
+    { word: "Annual", meaning: "ประจำปี" },
+    { word: "Another", meaning: "อีกอัน, อีกคน" },
+    { word: "Answer", meaning: "คำตอบ, ตอบ" },
+    { word: "Anxiety", meaning: "ความวิตกกังวล" },
+    { word: "Anxious", meaning: "กระวนกระวายใจ" },
+    { word: "Any", meaning: "ใดๆ, บ้าง" },
+    { word: "Anybody", meaning: "ใครก็ตาม" },
+    { word: "Anymore", meaning: "อีกต่อไป" },
+    { word: "Anyone", meaning: "ใครก็ตาม" },
+    { word: "Anything", meaning: "สิ่งใดๆ" },
+    { word: "Anyway", meaning: "อย่างไรก็ตาม" },
+    { word: "Anywhere", meaning: "ที่ไหนก็ตาม" },
+    { word: "Apart", meaning: "แยกออกจากกัน" },
+    { word: "Apologize", meaning: "ขอโทษ" },
+    { word: "Apparent", meaning: "ชัดเจน" },
+    { word: "Appeal", meaning: "ดึงดูด, คำร้องอุทธรณ์" },
+    { word: "Appear", meaning: "ปรากฏ" },
+    { word: "Appearance", meaning: "ลักษณะที่ปรากฏ" },
+    { word: "Appetite", meaning: "ความอยากอาหาร" },
+    { word: "Applaud", meaning: "ปรบมือ" },
+    { word: "Apple", meaning: "แอปเปิยว์" },
+    { word: "Application", meaning: "ใบสมัคร, แอปพลิเคชัน" },
+    { word: "Apply", meaning: "สมัคร, ประยุกต์ใช้" },
+    { word: "Appoint", meaning: "แต่งตั้ง, นัดหมาย" },
+    { word: "Appreciate", meaning: "ซาบซึ้ง, เห็นคุณค่า" },
+    { word: "Approach", meaning: "เข้าใกล้, วิธีการ" },
+    { word: "Appropriate", meaning: "เหมาะสม" },
+    { word: "Approval", meaning: "การอนุมัติ" },
+    { word: "Approve", meaning: "อนุมัติ" },
+    { word: "Approximate", meaning: "ประมาณ" },
+    { word: "Architect", meaning: "สถาปนิก" },
+    { word: "Architecture", meaning: "สถาปัตยกรรม" },
+    { word: "Area", meaning: "พื้นที่" },
+    { word: "Argue", meaning: "โต้เถียง" },
+    { word: "Argument", meaning: "การโต้เถียง" },
+    { word: "Arise", meaning: "เกิดขึ้น" },
+    { word: "Arm", meaning: "แขน" },
+    { word: "Army", meaning: "กองทัพ" },
+    { word: "Around", meaning: "รอบๆ" },
+    { word: "Arrange", meaning: "จัดเตรียม" },
+    { word: "Arrangement", meaning: "การจัดเตรียม" },
+    { word: "Arrest", meaning: "จับกุม" }
         ];
 
+        let currentMode = 'multiple';
         let currentQuestions = [];
         let currentIndex = 0;
         let xp = 0;
@@ -236,13 +329,10 @@
         let maxStreak = 0;
         let correctCount = 0;
         let wrongCount = 0;
-        let currentQuizType = 1;
-        
+
         const TOTAL_TIME = 15;
         let timeLeft = TOTAL_TIME;
         let timerInterval;
-        let lifelineUsed5050 = false;
-        let skipUsedCount = 0;
 
         function shuffle(array) {
             let currentIndex = array.length, randomIndex;
@@ -254,29 +344,31 @@
             return array;
         }
 
-        function initQuiz() {
+        function startQuiz(mode) {
+            currentMode = mode;
             xp = 0;
             streak = 0;
             maxStreak = 0;
             correctCount = 0;
             wrongCount = 0;
             currentIndex = 0;
-            lifelineUsed5050 = false;
-            skipUsedCount = 0;
 
-            document.getElementById('quiz-app').style.display = 'block';
-            document.getElementById('result-container').style.display = 'none';
-            document.getElementById('btn-5050').disabled = false;
-            document.getElementById('btn-skip-q').disabled = false;
-
-            currentQuizType = Math.floor(Math.random() * 15) + 1;
-            document.getElementById('quiz-mode-title').innerText = `🧩 รูปแบบคำถามชุดที่ ${currentQuizType} / 15`;
+            document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
 
             let shuffledVocab = [...allVocabulary];
             shuffle(shuffledVocab);
             currentQuestions = shuffledVocab.slice(0, 10);
 
             loadQuestion();
+        }
+
+        function returnToMenu() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'block';
         }
 
         function startTimer() {
@@ -301,9 +393,14 @@
         function handleTimeOut() {
             streak = 0;
             wrongCount++;
+            const currentItem = currentQuestions[currentIndex];
+            document.getElementById('feedback-text').innerHTML = `<span style="color: #ff4757;">⏱️ หมดเวลา! คำตอบที่ถูกต้องคือ: <b>${currentItem.word}</b> (${currentItem.meaning})</span>`;
             updateStatsDisplay();
-            currentIndex++;
-            loadQuestion();
+
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 1800);
         }
 
         function loadQuestion() {
@@ -314,108 +411,109 @@
             }
 
             startTimer();
+            document.getElementById('feedback-text').innerHTML = '';
+            document.getElementById('progress-indicator').innerText = `ข้อ ${currentIndex + 1} / ${currentQuestions.length}`;
+
             const currentItem = currentQuestions[currentIndex];
-            const questionText = document.getElementById('question-text');
-            const optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = '';
 
-            if (currentQuizType % 2 === 1) {
-                questionText.innerText = `ข้อที่ ${currentIndex + 1}: ความหมายของ "${currentItem.word}" คืออะไร?`;
-                let incorrectOptions = allVocabulary.filter(v => v.meaning !== currentItem.meaning).map(v => v.meaning);
-                shuffle(incorrectOptions);
+            if (currentMode === 'multiple') {
+                document.getElementById('choices-container').style.display = 'grid';
+                document.getElementById('typing-container').style.display = 'none';
                 
-                let options = [currentItem.meaning, ...incorrectOptions.slice(0, 3)];
-                shuffle(options);
-
-                options.forEach(option => {
-                    const btn = document.createElement('button');
-                    btn.innerText = option;
-                    btn.onclick = () => checkAnswer(option, currentItem.meaning);
-                    optionsContainer.appendChild(btn);
-                });
-            } else {
-                questionText.innerText = `ข้อที่ ${currentIndex + 1}: คำศัพท์ใดตรงกับความหมาย "${currentItem.meaning}"?`;
-                let incorrectOptions = allVocabulary.filter(v => v.word !== currentItem.word).map(v => v.word);
-                shuffle(incorrectOptions);
+                document.getElementById('question-text').innerText = `คำศัพท์: "${currentItem.word}" หมายถึงอะไร?`;
                 
-                let options = [currentItem.word, ...incorrectOptions.slice(0, 3)];
-                shuffle(options);
+                let wrongChoices = allVocabulary.filter(v => v.word !== currentItem.word);
+                shuffle(wrongChoices);
+                let choices = [currentItem, wrongChoices[0], wrongChoices[1], wrongChoices[2]];
+                shuffle(choices);
 
-                options.forEach(option => {
-                    const btn = document.createElement('button');
-                    btn.innerText = option;
-                    btn.onclick = () => checkAnswer(option, currentItem.word);
-                    optionsContainer.appendChild(btn);
+                let choicesHTML = '';
+                choices.forEach(choice => {
+                    choicesHTML += `<button class="btn-choice" onclick="submitMultipleChoice('${choice.word}', '${currentItem.word}', '${currentItem.meaning}')">${choice.meaning}</button>`;
                 });
+                document.getElementById('choices-container').innerHTML = choicesHTML;
+
+            } else if (currentMode === 'typing') {
+                document.getElementById('choices-container').style.display = 'none';
+                document.getElementById('typing-container').style.display = 'flex';
+
+                document.getElementById('question-text').innerText = `แปลว่า: "${currentItem.meaning}"`;
+                const inputField = document.getElementById('user-answer-input');
+                inputField.value = '';
+                inputField.disabled = false;
+                inputField.focus();
             }
         }
 
-        function checkAnswer(selected, correct) {
+        function submitMultipleChoice(selectedWord, correctWord, correctMeaning) {
             clearInterval(timerInterval);
-            const buttons = document.querySelectorAll('#options-container button');
+            const buttons = document.querySelectorAll('.btn-choice');
+            buttons.forEach(btn => btn.disabled = true);
 
-            if (selected === correct) {
+            const feedbackText = document.getElementById('feedback-text');
+
+            if (selectedWord === correctWord) {
                 correctCount++;
                 streak++;
                 if (streak > maxStreak) maxStreak = streak;
                 xp += 10 + (streak * 2) + (timeLeft * 1);
-                
-                buttons.forEach(btn => {
-                    if (btn.innerText === correct) btn.style.backgroundColor = '#2ed573';
-                    if (btn.innerText === selected && selected !== correct) btn.style.backgroundColor = '#ff4757';
-                    btn.disabled = true;
-                });
+                feedbackText.innerHTML = `<span style="color: #2ed573;">🎉 ถูกต้อง! (${correctWord} = ${correctMeaning})</span>`;
             } else {
                 wrongCount++;
                 streak = 0;
-                buttons.forEach(btn => {
-                    if (btn.innerText === correct) btn.style.backgroundColor = '#2ed573';
-                    if (btn.innerText === selected) btn.style.backgroundColor = '#ff4757';
-                    btn.disabled = true;
-                });
+                feedbackText.innerHTML = `<span style="color: #ff4757;">❌ ผิด! คำตอบที่ถูกต้องคือ: <b>${correctWord}</b> (${correctMeaning})</span>`;
             }
 
             updateStatsDisplay();
             setTimeout(() => {
                 currentIndex++;
                 loadQuestion();
-            }, 1000);
+            }, 1800);
         }
 
-        function useFiftyFifty() {
-            if (lifelineUsed5050) return;
-            lifelineUsed5050 = true;
-            document.getElementById('btn-5050').disabled = true;
-
-            const currentItem = currentQuestions[currentIndex];
-            const buttons = Array.from(document.querySelectorAll('#options-container button'));
-            
-            let hiddenCount = 0;
-            buttons.forEach(btn => {
-                const isCorrect = (currentQuizType % 2 === 1) ? (btn.innerText === currentItem.meaning) : (btn.innerText === currentItem.word);
-                if (!isCorrect && hiddenCount < 2) {
-                    btn.classList.add('hidden-option');
-                    hiddenCount++;
-                }
-            });
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                submitTypedAnswer();
+            }
         }
 
-        function skipQuestion() {
+        function submitTypedAnswer() {
             clearInterval(timerInterval);
-            skipUsedCount++;
-            document.getElementById('btn-skip-q').disabled = true; 
-            currentIndex++;
-            loadQuestion();
+            const inputField = document.getElementById('user-answer-input');
+            const userAnswer = inputField.value.trim().toLowerCase();
+            const currentItem = currentQuestions[currentIndex];
+            const correctAnswer = currentItem.word.toLowerCase();
+
+            inputField.disabled = true;
+            const feedbackText = document.getElementById('feedback-text');
+
+            if (userAnswer === correctAnswer) {
+                correctCount++;
+                streak++;
+                if (streak > maxStreak) maxStreak = streak;
+                xp += 10 + (streak * 2) + (timeLeft * 1);
+                feedbackText.innerHTML = `<span style="color: #2ed573;">🎉 ถูกต้อง! (${currentItem.word} = ${currentItem.meaning})</span>`;
+            } else {
+                wrongCount++;
+                streak = 0;
+                feedbackText.innerHTML = `<span style="color: #ff4757;">❌ ผิด! คำที่ถูกต้องคือ: <b>${currentItem.word}</b> (${currentItem.meaning})</span>`;
+            }
+
+            updateStatsDisplay();
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 1800);
         }
 
         function updateStatsDisplay() {
-            document.getElementById('score-display').innerText = `🏆 แต้ม XP: ${xp}`;
+            document.getElementById('score-display').innerText = `🏆 XP: ${xp}`;
             document.getElementById('streak-display').innerText = `🔥 Streak: ${streak}`;
         }
 
         function showResult() {
-            document.getElementById('quiz-app').style.display = 'none';
-            document.getElementById('result-container').style.display = 'block';
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
 
             let accuracy = Math.round((correctCount / currentQuestions.length) * 100) || 0;
 
@@ -423,13 +521,10 @@
                 <div>✨ <b>แต้ม XP รวม:</b> ${xp} XP</div>
                 <div>🎯 <b>ความแม่นยำ:</b> ${accuracy}%</div>
                 <div>✅ <b>ตอบถูก:</b> ${correctCount} ข้อ</div>
-                <div>❌ <b>ตอบผิด:</b> ${wrongCount} ข้อ</div>
+                <div>❌ <b>ตอบผิด/หมดเวลา:</b> ${wrongCount} ข้อ</div>
                 <div>🔥 <b>Streak สูงสุด:</b> ${maxStreak} ข้อติด</div>
-                <div>⏭️ <b>ข้ามข้อ:</b> ${skipUsedCount} ครั้ง</div>
             `;
         }
-
-        window.onload = initQuiz;
     </script>
 </body>
 </html>
