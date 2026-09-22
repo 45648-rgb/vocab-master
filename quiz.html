@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Challenge - ควิซทดสอบ 20 ข้อ</title>
+  <style>
+    body {
+      font-family: 'Sukhumvit Set', 'Kanit', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .score-badge {
+      background-color: #e0e7ff;
+      color: #4338ca;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .question-title {
+      color: #718096;
+      font-size: 0.95rem;
+      margin-bottom: 5px;
+    }
+
+    .word {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #1a202c;
+      margin: 10px 0 25px 0;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .option-btn {
+      width: 100%;
+      padding: 14px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background-color: white;
+      color: #2d3748;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .option-btn:hover {
+      border-color: #4f46e5;
+      background-color: #f5f3ff;
+    }
+
+    .option-btn.correct {
+      background-color: #d1fae5 !important;
+      border-color: #10b981 !important;
+      color: #065f46;
+    }
+
+    .option-btn.wrong {
+      background-color: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #991b1b;
+    }
+
+    .next-btn {
+      margin-top: 20px;
+      padding: 12px 25px;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: none;
+      width: 100%;
+    }
+
+    .next-btn:hover {
+      background-color: #4338ca;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h2 style="margin:0;">🎯 Quiz Challenge</h2>
+      <div class="score-badge" id="scoreText">คะแนน: 0 / 20</div>
+    </div>
+
+    <div id="quizBox">
+      <div class="question-title" id="questionNum">ข้อที่ 1/20: คำศัพท์นี้มีความหมายตรงกับข้อใด?</div>
+      <div class="word" id="wordText">Loading...</div>
+
+      <div class="options-grid" id="optionsContainer"></div>
+
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">คำถามถัดไป ➔</button>
+    </div>
+  </div>
+
+  <script>
+    // ชุดข้อมูลคำศัพท์ 20 ข้อ
+    const quizData = [
+      { word: "Achieve", options: ["บรรลุผล, สำเร็จ", "ล้มเหลว", "ท้าทาย", "เริ่มต้น"], answer: 0 },
+      { word: "Brilliant", options: ["มืดมน", "ฉลาดปราดเปรื่อง", "อ่อนแอ", "เงียบสงบ"], answer: 1 },
+      { word: "Challenge", options: ["การยอมแพ้", "ความช่วยเหลือ", "การท้าทาย", "ความสะดวกสบาย"], answer: 2 },
+      { word: "Dangerous", options: ["ปลอดภัย", "อันตราย", "งดงาม", "รวดเร็ว"], answer: 1 },
+      { word: "Eager", options: ["กระตือรือร้น", "ขี้เกียจ", "เศร้าโศก", "โกรธเคือง"], answer: 0 },
+      { word: "Famous", options: ["ลึกลับ", "ยากจน", "มีชื่อเสียง", "แปลกประหลาด"], answer: 2 },
+      { word: "Generous", options: ["เอื้อเฟื้อเผื่อแผ่", "ตระหนี่", "ใจร้าย", "เห็นแก่ตัว"], answer: 0 },
+      { word: "Honest", options: ["โกหก", "ซื่อสัตย์", "ฉลาด", "ขี้อาย"], answer: 1 },
+      { word: "Important", options: ["สำคัญ", "ไร้สาระ", "เล็กน้อย", "ง่ายดาย"], answer: 0 },
+      { word: "Journey", options: ["การเดินทาง", "การนอนหลับ", "การทำงาน", "การต่อสู้"], answer: 0 },
+      { word: "Knowledge", options: ["ความไม่รู้", "ความรู้", "ความฝัน", "ความกลัว"], answer: 1 },
+      { word: "Liquid", options: ["ของแข็ง", "ของเหลว", "ก๊าซ", "พลังงาน"], answer: 1 },
+      { word: "Mystery", options: ["ความจริง", "ความลึกลับ", "ความสุข", "ความสะอาด"], answer: 1 },
+      { word: "Neglect", options: ["ใส่ใจ", "ละเลย, ไม่สนใจ", "ปกป้อง", "สนับสนุน"], answer: 1 },
+      { word: "Opportunity", options: ["โอกาส", "อุปสรรค", "ความล้มเหลว", "อันตราย"], answer: 0 },
+      { word: "Patient", options: ["ใจร้อน", "อดทน", "สับสน", "ก้าวร้าว"], answer: 1 },
+      { word: "Quick", options: ["ช้า", "รวดเร็ว", "หนัก", "เบา"], answer: 1 },
+      { word: "Reduce", options: ["ลดลง", "เพิ่มขึ้น", "ขยาย", "สร้าง"], answer: 0 },
+      { word: "Succeed", options: ["ล้มเหลว", "ยอมแพ้", "ประสบความสำเร็จ", "หยุดชะงัก"], answer: 2 },
+      { word: "Urgent", options: ["เร่งด่วน", "ล่าช้า", "ปกติ", "ไม่สำคัญ"], answer: 0 }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let canAnswer = true;
+
+    function loadQuestion() {
+      canAnswer = true;
+      document.getElementById('nextBtn').style.display = 'none';
+      
+      const q = quizData[currentQuestion];
+      document.getElementById('questionNum').innerText = `ข้อที่ ${currentQuestion + 1}/${quizData.length}: คำศัพท์นี้มีความหมายตรงกับข้อใด?`;
+      document.getElementById('wordText').innerText = q.word;
+      document.getElementById('scoreText').innerText = `คะแนน: ${score} / ${quizData.length}`;
+
+      const optionsContainer = document.getElementById('optionsContainer');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = `${index + 1}. ${option}`;
+        btn.onclick = () => checkAnswer(index, btn);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selectedIndex, btn) {
+      if (!canAnswer) return;
+      canAnswer = false;
+
+      const q = quizData[currentQuestion];
+      const buttons = document.querySelectorAll('.option-btn');
+
+      if (selectedIndex === q.answer) {
+        btn.classList.add('correct');
+        score++;
+      } else {
+        btn.classList.add('wrong');
+        buttons[q.answer].classList.add('correct');
+      }
+
+      document.getElementById('scoreText').innerText = `คะแนน: ${score} / ${quizData.length}`;
+      document.getElementById('nextBtn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      const container = document.getElementById('quizBox');
+      container.innerHTML = `
+        <h3>🎉 จบควิซทดสอบแล้ว!</h3>
+        <p style="font-size: 1.3rem; margin: 20px 0;">คุณทำคะแนนได้ <br><strong style="font-size: 2.5rem; color: #4f46e5;">${score} / ${quizData.length}</strong><br> คะแนน</p>
+        <button class="next-btn" style="display:block;" onclick="location.reload()">ทำแบบทดสอบอีกครั้ง 🔄</button>
+      `;
+    }
+
+    // เริ่มต้นแสดงคำถามแรก
+    loadQuestion();
+  </script>
+
+</body>
+</html>
